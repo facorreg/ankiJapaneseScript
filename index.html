@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="./style/common.css" />
+  <link rel="stylesheet" type="text/css" href="./style/word.css" />
+  <link rel="stylesheet" type="text/css" href="./style/kanji.css" />
+  <link rel="stylesheet" type="text/css" href="./style/tools.css" />
+  <title>Document</title>
+</head>
+
+<body>
+  <div class="card">
+    <!-- <div id="pageWord" class="hidden">日</div> -->
+    <div id="pageWord" class="hidden">する</div>
+  </div>
+</body>
+<script src="./env.js"></script>
+
+<script src="./utils/utils.js"></script>
+<script src="./utils/elemGenerator.js"></script>
+<script src="./utils/fetch.js"></script>
+
+<script src="./page/buildCommonPageElements.js"></script>
+<script src="./page/setFinalDisplay.js"></script>
+
+<script src="./kanjiPage/buildKanjiPage.js"></script>
+<script src="./kanjiPage/overviewData.js"></script>
+<script src="./kanjiPage/sideBarData.js"></script>
+<script src="./kanjiPage/strokesImagesData.js"></script>
+<script src="./kanjiPage/examplesData.js"></script>
+
+<script src="./wordPage/buildWordPage.js"></script>
+<script src="./wordPage/defElemsData.js"></script>
+<script src="./wordPage/otherFormsData.js"></script>
+<script src="./wordPage/kanjiListData.js"></script>
+
+<script>
+  const word = getCurrentWord();
+  const isWord = word.length > 1 || !hasKanji(word);
+  buildCommonPageElements(word);
+  const createModalChildren = elemGenerator(document.querySelector('#modalBody'));
+
+  const options = { allowRefetch: true };
+
+  (isWord ? buildWordPage : buildKanjiPage)(word, options);
+</script>
+
+</html>

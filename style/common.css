@@ -1,0 +1,65 @@
+body {
+  color: white;
+  background: #181A1B;
+  font-size: 30px;
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  position: relative;
+}
+
+#answer {
+  margin: 75px auto;
+  max-width: 1500px;
+}
+
+#modal {
+  position: fixed;
+  display: flex;
+  top: 0;
+  left: 0;
+  background: #181A1B;
+  opacity: 0.95;
+}
+
+/* error */
+#error, #modal {
+  flex-direction: column;
+}
+
+#error > img, #modal img {
+  height: 175px;
+}
+
+#error > a > img, #modal > a > img {
+  height: 100px;
+  margin-bottom: 40px;
+}
+
+#error p, #modal p {
+  line-height: 50px;
+}
+
+#modalBody {
+  width: 90vw;
+  max-height: 80vh;
+  max-width: 1300px;
+  overflow-y: auto;
+}
+
+#loader, #error, #modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  min-height: 100vh;
+}
+
+#frontSide {
+  display: flex;
+  justify-content: center;
+  font-size: 5em;
+}
+
+.hidden {
+  display: none !important;
+}

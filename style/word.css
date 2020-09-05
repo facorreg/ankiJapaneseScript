@@ -1,0 +1,132 @@
+
+.answerWord {
+  display: grid;
+  grid-template-areas: 
+    'def . kanji ';
+
+  grid-template-columns: 60% 5% 35%;
+}
+
+.wordDefContainer {
+  width: 100%;
+  grid-area: def;
+
+  font-size: 0.85em;
+  margin-bottom: 100px;
+}
+
+.flexer {
+  grid-row: 1;
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
+}
+
+.defElemContainer {
+  display: grid;
+  grid-template-rows: auto auto;
+  grid-template-columns: 10% 90%;
+  margin-bottom: 50px;
+}
+
+.defElems {
+  margin-bottom: 30px;
+  grid-column: 2;
+}
+
+.defPart {
+  font-size: 0.65em;
+}
+
+.def {
+  font-weight: bold;
+  line-height: 20px;
+}
+
+.otherForms {
+  margin-top: 20px;
+}
+
+.tags {
+  font-size: 0.75em;
+  font-style: italic;
+  margin-left: 30px;
+}
+
+.word {
+  grid-column: 1 / span 2;
+  grid-row: 1;
+  width: auto;
+  font-size: 1.75em;
+}
+
+.word > ruby > rt {
+  font-size: 33%;
+}
+
+.kanjiInfoContainer {
+  width: 100%;
+  grid-area: kanji;
+  display: flex;
+  flex-direction: column;
+}
+
+.kanjiInfoContainer::before {
+  content: 'Kanji';
+  line-height: 1.8em;
+  font-size: 1.4em;
+  font-weight: bold;
+}
+
+.singleKanjiContainer {
+  width: 100%;
+  display:  grid;
+  border: 1px solid white;
+  grid-template-columns: minmax(min-content, max-content) auto;
+  grid-template-rows: repeat(2, minmax(min-content, max-content));
+}
+
+.kanjiSymbolContainer {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  justify-content: flex-start;
+  font-size: 2.5em;
+  margin: 20px 10px 20px 20px;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.singleKanjiInfoContainer {
+  width: calc(100% - 40px);
+  display: grid;
+  grid-template-columns: 70% 30%;
+  margin: 20px 20px 20px 10px;
+}
+.singleKanjiOverviewText {
+  line-height: 30px;
+  font-size: 1.2rem;
+  width: 100%; 
+}
+
+.singleKanjiContainer .translation {
+  grid-row: 1;
+}
+
+.singleKanjiContainer .kunyomi {
+  margin-bottom: 20px;
+}
+
+.singleKanjiContainer .strokes {
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 5px;
+}
+
+.singleKanjiContainer .jlpt {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  justify-content: flex-end;
+}

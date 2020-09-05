@@ -1,0 +1,142 @@
+.answerKanji {
+  display: grid;
+
+  grid-template-areas: 
+    'sideBar . overview        .'
+    'sideBar . strokesImages   .'
+    '.       . examples        .'
+  ;
+  grid-template-columns: calc(20% - 75px) 75px calc(80% - 75px) 75px;
+
+  width: 100%;
+  height: auto;
+}
+
+.kanjiOverview {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 80% 20%;
+  grid-area: overview;
+}
+
+.meanings {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.translationContainer {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  width: auto;
+  max-width: 95%;
+}
+
+.overviewText {
+  line-height: 48px;
+}
+
+.kanjiJltp {
+  display: flex;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  justify-content: flex-start;
+  align-items: flex-end;
+  flex-direction: column;
+}
+
+.sideBar {
+  grid-area: sideBar;
+}
+
+.kanji {
+  display: flex;
+  justify-content: center;
+  font-size: 3.5em;
+  margin: 20px;
+}
+
+.strokes {
+  font-size: 1.3rm;
+  max-width: 100%;
+  line-height: 48px;
+  text-align: center;
+}
+
+.videoStrokes {
+  max-width: 100%;
+  background: white;
+}
+
+.strokeOrderContainer {
+  width: 100%;
+  height: 300px;
+  grid-area: strokesImages;
+  justify-content: center;
+  align-content: center;
+  display: flex;
+}
+
+.strokeOrder {
+  max-width: 100%;
+  margin: auto;
+  overflow: hidden;
+  overflow-x: auto;
+  display: inline-flex;
+}
+
+.strokeOrder img {
+  width: 90px;
+  filter: invert(1);
+  border: 1px solid black
+}
+
+.examples {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  grid-area: examples;
+}
+
+.example {
+  display: grid;
+  grid-template-columns: 25% 65% 10%;
+  grid-column: 1;
+  line-height: 75px;
+}
+
+.example .japaneseEx {
+  grid-column: 1;
+}
+
+.example .englishEx {
+  grid-column: 2;
+}
+
+.example audio {
+  grid-column: 3;
+  width: 100px;
+}
+
+.arrow-right, .arrow-left {
+  width: 0; 
+  height: 0; 
+  margin-left: 15px;
+  background: #181A1B;
+  cursor: pointer;
+}
+
+.arrow-right {
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid white;
+}
+
+.arrow-left {
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-right: 12px solid white;
+}
