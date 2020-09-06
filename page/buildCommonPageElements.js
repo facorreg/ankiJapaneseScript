@@ -41,20 +41,18 @@ const buildCommonPageElements = (word) => (
       content: `Oops, it looks like we were unable to fetch data for ${word}`,
     }, {
       elem: 'p',
-      content: 'you may have more luck there: (click on the image)',
+      content: 'you may have more luck there:',
     }, {
       elem: 'a',
-      attributes: {
-        href: `${JISHO_URL}${word}`,
-        ownChildren: [{
-          elem: 'img',
-          id: 'jishoPic',
-          attributes: {
-            src: JISHO_IMG_URL,
-            alt: 'jisho',
-          },
-        }],
-      },
+      attributes: { href: `${JISHO_URL}${word}` },
+      ownChildren: [{
+        elem: 'img',
+        id: 'jishoPic',
+        attributes: {
+          src: JISHO_IMG_URL,
+          alt: 'jisho',
+        },
+      }],
     }, {
       elem: 'img',
       attributes: {

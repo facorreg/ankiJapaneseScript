@@ -1,4 +1,6 @@
 const globalNames = [
+  /* options */
+  'rootOptions',
   /* env */
   'KANJI_API_URL',
   'JISHO_URL',
@@ -28,6 +30,9 @@ const globalNames = [
   'elemGenerator',
   'createCardChildren',
   'createModalChildren',
+  /* Common generators */
+  'buildHeaders',
+  'buildCommonPageElements',
   /* kanji page build */
   'buildKanjiPage',
   'buildKanjiData',
@@ -36,6 +41,7 @@ const globalNames = [
   'strokesImagesData',
   'examplesData',
   /* word page build */
+  'buildWordPage',
   'defElemsData',
   'otherFormsData',
   'kanjiListData',
