@@ -41,7 +41,7 @@ const buildCommonPageElements = (word) => (
       content: `Oops, it looks like we were unable to fetch data for ${word}`,
     }, {
       elem: 'p',
-      content: 'you may have more luck there:',
+      content: 'You may have more luck there:',
     }, {
       elem: 'a',
       attributes: { href: `${JISHO_URL}${word}` },
