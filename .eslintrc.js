@@ -26,6 +26,8 @@ const globalNames = [
   'findValidFormat',
   'objectListKeysToCamelCase',
   'objectPropEnforceArray',
+  /* frontSide */
+  'getFurigana',
   /* utils generator */
   'elemGenerator',
   'createCardChildren',

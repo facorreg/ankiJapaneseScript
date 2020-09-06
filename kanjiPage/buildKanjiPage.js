@@ -31,16 +31,16 @@ const buildKanjiPage = async (word, options) => {
     };
 
     const response = await myFetch(args);
-    if (response.words) return; // @todo apply to word page
+    console.log(response);
+    if (response.words) return buildWordPage(word, options);
 
     createCardChildren({
       id: 'answer',
       ownChildren: buildKanjiData(response),
     });
 
-    setFinalDisplay('.answerKanji');
+    return Promise.resolve('.answerKanji');
   } catch (err) {
-    // eslint-disable-next-line no-console
-    setFinalDisplay('#error');
+    return Promise.reject(err);
   }
 };

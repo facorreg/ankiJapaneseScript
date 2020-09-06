@@ -55,8 +55,8 @@ const buildWordPage = async (word, options) => {
         }));
     }
 
-    setFinalDisplay('.answerWord');
+    return Promise.resolve('.answerWord');
   } catch (err) {
-    setFinalDisplay('#error');
+    return Promise.reject();
   }
 };

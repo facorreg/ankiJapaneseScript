@@ -3,6 +3,6 @@ const setFinalDisplay = (toDisplay) => {
   const loader = document.querySelector('#loader');
   const elemToDisplay = document.querySelector(toDisplay);
 
-  loader.classList.add('hidden');
+  if (!isEmpty(loader)) loader.classList.add('hidden');
   elemToDisplay.classList.remove('hidden');
 };

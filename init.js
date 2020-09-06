@@ -1,12 +1,16 @@
+/* eslint-disable no-unused-vars */
+
 let createModalChildren;
+let buildPromise;
 
 (() => {
   const word = getCurrentWord();
   const isWord = word.length > 1 || !hasKanji(word);
   buildHeaders();
   buildCommonPageElements(word);
-  // eslint-disable-next-line no-unused-vars
   createModalChildren = elemGenerator(document.querySelector('#modalBody'));
 
-  (isWord ? buildWordPage : buildKanjiPage)(word, rootOptions);
+  buildPromise = (isWord ? buildWordPage : buildKanjiPage)(word, rootOptions)
+    .then((r) => setFinalDisplay(r))
+    .catch(() => setFinalDisplay('#error'));
 })();
