@@ -1,7 +1,22 @@
-<div id=pageWord class=hidden>{{Kanji}}</div>
-<script>
 // eslint-disable-next-line no-unused-vars
-const rootOptions = { allowRefetch: true };
+const rootOptions = {
+  allowRefetch: true,
+};
+/*
+  Note: never push an .env file as is
+    if your data is meant to be kept secret.
+*/
+
+/* eslint-disable no-unused-vars */
+const videoFormats = ['webm']; // only format working with Anki
+const audioFormats = ['opus', 'aac', 'ogg', 'mp3'];
+
+const KANJI_API_URL = 'https://profuse-tan-find.glitch.me/';
+// const KANJI_API_URL = 'http://localhost:3000/';
+
+const JISHO_URL = 'https://jisho.org/search/';
+const JISHO_IMG_URL = 'https://pbs.twimg.com/profile_images/378800000741890744/43702f3379bdb7d0d725b70ae9a5bd59_400x400.png';
+const SORRY_GIF = 'https://thumbs.gfycat.com/AngelicVagueHeifer.webp';
 /* eslint-disable no-unused-vars */
 
 const elemGenerator = (elemParent) => (elemData) => {
@@ -77,6 +92,16 @@ const myFetch = async (args) => {
   }
 };
 /* eslint-disable no-unused-vars */
+const setFinalDisplay = (toDisplay) => {
+  const loader = document.querySelector('#loader');
+  const elemToDisplay = document.querySelector(toDisplay);
+
+  if (loader !== null) {
+    loader.classList.add('hidden');
+  }
+  elemToDisplay.classList.remove('hidden');
+};
+
 const getCurrentWord = () => document.querySelector('#pageWord').textContent;
 
 const get = (object, path, defaultVal = '') => {
@@ -102,6 +127,8 @@ const isObject = (object) => typeof object === 'object' && object !== null;
 const isArray = (obj) => Array.isArray(obj);
 
 const isEmpty = (obj) => {
+  if (typeof obj !== 'object' && obj) return false;
+
   if (
     obj === null
     || obj === undefined
@@ -280,14 +307,6 @@ const buildHeaders = () => (
       rel: 'stylesheet',
     },
   }));
-// eslint-disable-next-line no-unused-vars
-const setFinalDisplay = (toDisplay) => {
-  const loader = document.querySelector('#loader');
-  const elemToDisplay = document.querySelector(toDisplay);
-
-  loader.classList.add('hidden');
-  elemToDisplay.classList.remove('hidden');
-};
 const buildKanjiData = (word, props = {}) => {
   const { kanji: { kanji, examples = [] } } = word;
   const {
@@ -321,17 +340,17 @@ const buildKanjiPage = async (word, options) => {
     };
 
     const response = await myFetch(args);
-    if (response.words) return; // @todo apply to word page
+    console.log(response);
+    if (response.words) return buildWordPage(word, options);
 
     createCardChildren({
       id: 'answer',
       ownChildren: buildKanjiData(response),
     });
 
-    setFinalDisplay('.answerKanji');
+    return Promise.resolve('.answerKanji');
   } catch (err) {
-    // eslint-disable-next-line no-console
-    setFinalDisplay('#error');
+    return Promise.reject(err);
   }
 };
 // eslint-disable-next-line no-unused-vars
@@ -508,9 +527,9 @@ const buildWordPage = async (word, options) => {
         }));
     }
 
-    setFinalDisplay('.answerWord');
+    return Promise.resolve('.answerWord');
   } catch (err) {
-    setFinalDisplay('#error');
+    return Promise.reject();
   }
 };
 const parseDefStrings = (sense) => {
@@ -656,30 +675,19 @@ const otherFormsData = (words) => ({
   })),
   ],
 });
-/*
-  Note: never push an .env file as is
-    if your data is meant to be kept secret.
-*/
-
 /* eslint-disable no-unused-vars */
-const videoFormats = ['webm']; // only format working with Anki
-const audioFormats = ['opus', 'aac', 'ogg', 'mp3'];
 
-const KANJI_API_URL = 'https://profuse-tan-find.glitch.me/';
-
-const JISHO_URL = 'https://jisho.org/search/';
-const JISHO_IMG_URL = 'https://pbs.twimg.com/profile_images/378800000741890744/43702f3379bdb7d0d725b70ae9a5bd59_400x400.png';
-const SORRY_GIF = 'https://thumbs.gfycat.com/AngelicVagueHeifer.webp';
 let createModalChildren;
+let buildPromise;
 
 (() => {
   const word = getCurrentWord();
   const isWord = word.length > 1 || !hasKanji(word);
   buildHeaders();
   buildCommonPageElements(word);
-  // eslint-disable-next-line no-unused-vars
   createModalChildren = elemGenerator(document.querySelector('#modalBody'));
 
-  (isWord ? buildWordPage : buildKanjiPage)(word, rootOptions);
+  buildPromise = (isWord ? buildWordPage : buildKanjiPage)(word, rootOptions)
+    .then((r) => setFinalDisplay(r))
+    .catch(() => setFinalDisplay('#error'));
 })();
-</script>

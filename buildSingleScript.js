@@ -29,13 +29,6 @@ const merger = (paths, dest) => (
   paths.forEach((path) => mergeFiles(path, dest))
 );
 
-const ankiHtml = () => {
-  addStringToFile('<div id="pageWord" class="hidden">{{Kanji}}</div>', './build/ankiBundle.html');
-  addStringToFile('<script>', './build/ankiBundle.html');
-  merger(['./build/bundle.js'], './build/ankiBundle.html');
-  addStringToFile('</script>', './build/ankiBundle.html');
-};
-
 const testHtmlString = `
 <!DOCTYPE html>
 <html lang=\\\"en\\\">
@@ -43,7 +36,7 @@ const testHtmlString = `
 <head>
   <meta charset=\\\"UTF-8\\\">
   <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\">
-  <link rel=\\\"stylesheet\\\" type=\\\"text/css\\\" href=\\\"bundle.css\\\" />
+  <link rel=\\\"stylesheet\\\" type=\\\"text/css\\\" href=\\\"./bundle.css\\\" />
   <title>Document</title>
 </head>
 
@@ -54,24 +47,48 @@ const testHtmlString = `
     <!-- <div id=\\\"pageWord\\\" class=\\\"hidden\\\">日本人</div> -->
     <!-- <div id=\\\"pageWord\\\" class=\\\"hidden\\\">SFADLFDKALFK</div> -->
   </div>
-  <script src=\\\"bundle.js\\\"></script>
+  <script src=\\\"./back.bundle.js\\\"></script>
 </body>
 
 </html>
 `;
 
-const build = async () => {
+const buildBundles = async () => {
   await rmDir('build');
   await mkdir('build');
 
-  const jsPaths = ['options.js', 'utils', 'page', 'kanjiPage', 'wordPage', 'env.js', 'init.js'];
-  const stylePaths = ['style'];
+  const paths = {
+    front: [
+      'options.js',
+      'env.js',
+      'utils',
+      'frontCard/getFurigana.js',
+      'frontCard/init.js',
+    ],
+    back: [
+      'options.js',
+      'env.js',
+      'utils',
+      'backCard/page',
+      'backCard/kanjiPage',
+      'backCard/wordPage',
+      'backCard/init.js',
+    ],
+  };
 
-  merger(jsPaths, './build/bundle.js');
+  const stylePaths = ['style'];
   merger(stylePaths, './build/bundle.css');
-  ankiHtml();
-  touch('./build/testBuild.html');
+
+  ['front', 'back'].forEach((type) => {
+    merger(paths[type], `./build/${type}.bundle.js`);
+    merger([`./${type}Card/anki.${type}.html`], `./build/anki.${type}.html`);
+    addStringToFile('<script>', `./build/anki.${type}.html`);
+    merger([`./build/${type}.bundle.js`], `./build/anki.${type}.html`);
+    addStringToFile('</script>', `./build/anki.${type}.html`);
+  });
+
   addStringToFile(testHtmlString, './build/testBuild.html');
+  touch('./build/testBuild.html');
 };
 
-build();
+buildBundles();
