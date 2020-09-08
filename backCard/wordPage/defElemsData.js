@@ -1,5 +1,5 @@
 const parseDefStrings = (sense) => {
-  const lower = (arr) => arr.map((e) => e.toLowerCase());
+  const lower = (arr) => arr.map((e) => (e ? e.toLowerCase() : ''));
   const callbacks = {
     englishDefinitions: (arr, glue) => arr.join(glue),
     partsOfSpeech: (arr, glue) => lower(arr).join(glue),

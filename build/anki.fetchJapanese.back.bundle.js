@@ -198,9 +198,9 @@
     }
   };
 
-  const kanjiRegex = /[一-龯]/;
-  const allkanjiRegex = /[一-龯]/g;
-  const allkanjiRegexAsOne = /[一-龯]+/g;
+  const kanjiRegex = /[一-龯]|\u3005/;
+  const allkanjiRegex = /[一-龯]|\u3005/g;
+  const allkanjiRegexAsOne = /([一-龯]|\u3005)+/g;
 
   const getKanji = (string, greed = false) => string.match(greed ? allkanjiRegex : kanjiRegex);
   const hasKanji = (string) => Boolean(getKanji(string));
@@ -523,7 +523,7 @@
     }
   };
   const parseDefStrings = (sense) => {
-    const lower = (arr) => arr.map((e) => e.toLowerCase());
+    const lower = (arr) => arr.map((e) => (e ? e.toLowerCase() : ''));
     const callbacks = {
       englishDefinitions: (arr, glue) => arr.join(glue),
       partsOfSpeech: (arr, glue) => lower(arr).join(glue),
