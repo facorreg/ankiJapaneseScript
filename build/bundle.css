@@ -57,8 +57,13 @@ body {
 #pageWord {
   display: flex;
   justify-content: center;
+  align-items: flex-end;
   font-size: 5em;
   width: 100%;
+}
+
+#pageWord > ruby > rt {
+  font-size: 33%;
 }
 
 .hidden {
