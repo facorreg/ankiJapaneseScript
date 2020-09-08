@@ -41,7 +41,7 @@ const buildWordPage = async (word, options) => {
       }],
     });
 
-    if (kanjiWithin) {
+    if (!isEmpty(kanjiWithin)) {
       const kanjiListArgs = {
         url: KANJI_API_URL,
         endpoint: 'kanjiList',
