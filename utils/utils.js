@@ -130,5 +130,5 @@ const stringWithFurigana = (word, furigana) => {
 
   const callback = (kanji) => buildRuby(kanji, matchedFurigana.shift());
 
-  return word.replace(allkanjiRegex, callback);
+  return word.replace(allkanjiRegexAsOne, callback);
 };

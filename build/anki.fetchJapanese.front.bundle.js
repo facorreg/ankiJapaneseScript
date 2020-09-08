@@ -224,7 +224,7 @@
 
     const callback = (kanji) => buildRuby(kanji, matchedFurigana.shift());
 
-    return word.replace(allkanjiRegex, callback);
+    return word.replace(allkanjiRegexAsOne, callback);
   };
   // eslint-disable-next-line no-unused-vars
   const getFurigana = async (word) => {

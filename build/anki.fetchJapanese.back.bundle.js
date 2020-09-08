@@ -224,7 +224,7 @@
 
     const callback = (kanji) => buildRuby(kanji, matchedFurigana.shift());
 
-    return word.replace(allkanjiRegex, callback);
+    return word.replace(allkanjiRegexAsOne, callback);
   };
   const closeCallback = (e) => {
     const modal = document.querySelector('#modal');
