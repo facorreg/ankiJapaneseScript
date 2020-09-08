@@ -20,7 +20,7 @@ const buildWordPage = async (word, options) => {
           classNames: ['wordDefContainer'],
           ownChildren: words.map((childWord) => {
             const { japanese, senses } = objectPropEnforceArray(childWord, ['japanese', 'senses']);
-            const [firstJap, ...rest] = japanese;
+            const [firstJap] = japanese;
 
             return {
               classNames: ['defElemContainer'],
@@ -32,7 +32,7 @@ const buildWordPage = async (word, options) => {
                   attributes: { lang: 'jap' },
                 },
                 ...defElemsData(senses),
-                otherFormsData(rest),
+                otherFormsData(japanese),
 
               ],
             };

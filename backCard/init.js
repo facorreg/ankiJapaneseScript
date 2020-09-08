@@ -1,16 +1,15 @@
 /* eslint-disable no-unused-vars */
 
-let createModalChildren;
-let buildPromise;
-
-(() => {
+const init = () => {
   const word = getCurrentWord();
   const isWord = word.length > 1 || !hasKanji(word);
   buildHeaders();
   buildCommonPageElements(word);
   createModalChildren = elemGenerator(document.querySelector('#modalBody'));
 
-  buildPromise = (isWord ? buildWordPage : buildKanjiPage)(word, rootOptions)
+  (isWord ? buildWordPage : buildKanjiPage)(word, _options)
     .then((r) => setFinalDisplay(r))
     .catch(() => setFinalDisplay('#error'));
-})();
+};
+
+init();

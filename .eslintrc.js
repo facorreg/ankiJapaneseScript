@@ -1,6 +1,6 @@
 const globalNames = [
   /* options */
-  'rootOptions',
+  '_options',
   /* env */
   'KANJI_API_URL',
   'JISHO_URL',
@@ -31,7 +31,7 @@ const globalNames = [
   /* utils generator */
   'elemGenerator',
   'createCardChildren',
-  'createModalChildren',
+  'createModalChildren', // writable
   /* Common generators */
   'buildHeaders',
   'buildCommonPageElements',
@@ -69,5 +69,6 @@ module.exports = {
   globals: {
     ...globalNames
       .reduce((acc, name) => ({ ...acc, [name]: 'readonly' }), {}),
+    createModalChildren: 'writable',
   },
 };

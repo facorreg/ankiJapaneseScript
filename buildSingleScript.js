@@ -9,6 +9,7 @@ const isDir = (path) => exec(`ls -ld ${path}`)[0] === 'd';
 const getFolderContent = (folderPath) => exec(`ls -A1 ${folderPath}`).split('\n').filter((e) => e);
 const mergeFilesBash = (origin, dest) => exec(`cat ${origin} >> ${dest}`);
 const addStringToFile = (str, dest) => exec(`printf "${str}\n" >> ${dest}`);
+const eslint = (src) => exec(`npx eslint --fix ${src}`);
 
 const mergeFiles = (origin, dest) => {
   const pathIsDir = isDir(origin);
@@ -42,12 +43,15 @@ const testHtmlString = `
 
 <body>
   <div class=\\\"card\\\">
-    <div id=\\\"pageWord\\\" class=\\\"hidden\\\">する</div>
-    <!-- <div id=\\\"pageWord\\\" class=\\\"hidden\\\">本</div> -->
-    <!-- <div id=\\\"pageWord\\\" class=\\\"hidden\\\">日本人</div> -->
-    <!-- <div id=\\\"pageWord\\\" class=\\\"hidden\\\">SFADLFDKALFK</div> -->
+    <div class=\\\"qa\\\">
+      <div id=\\\"pageWord\\\" class=\\\"hidden\\\">する</div>
+      <!-- <div id=\\\"pageWord\\\" class=\\\"hidden\\\">本</div> -->
+      <!-- <div id=\\\"pageWord\\\" class=\\\"hidden\\\">日本人</div> -->
+      <!-- <div id=\\\"pageWord\\\" class=\\\"hidden\\\">SFADLFDKALFK</div> -->
+    </div>
   </div>
-  <script src=\\\"./back.bundle.js\\\"></script>
+  <script src=\\\"anki.fetchJapanese.front.bundle.js\\\"></script>
+  <script src=\\\"anki.fetchJapanese.back.bundle.js\\\"></script>
 </body>
 
 </html>
@@ -80,11 +84,12 @@ const buildBundles = async () => {
   merger(stylePaths, './build/bundle.css');
 
   ['front', 'back'].forEach((type) => {
-    merger(paths[type], `./build/${type}.bundle.js`);
-    merger([`./${type}Card/anki.${type}.html`], `./build/anki.${type}.html`);
-    addStringToFile('<script>', `./build/anki.${type}.html`);
-    merger([`./build/${type}.bundle.js`], `./build/anki.${type}.html`);
-    addStringToFile('</script>', `./build/anki.${type}.html`);
+    addStringToFile('(() => {\n', `./build/anki.fetchJapanese.${type}.bundle.js`);
+    merger(paths[type], `./build/anki.fetchJapanese.${type}.bundle.js`);
+    addStringToFile('})()', `./build/anki.fetchJapanese.${type}.bundle.js`);
+    eslint(`./build/anki.fetchJapanese.${type}.bundle.js`);
+    merger([`./${type}Card/anki.${type}.html`], `./build/anki.fetchJapanese.${type}.html`);
+    addStringToFile(`\n<script src=\\\"anki.fetchJapanese.${type}.bundle.js\\\"></script>`, `./build/anki.fetchJapanese.${type}.html`);
   });
 
   addStringToFile(testHtmlString, './build/testBuild.html');

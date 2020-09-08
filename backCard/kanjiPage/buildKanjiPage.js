@@ -31,7 +31,6 @@ const buildKanjiPage = async (word, options) => {
     };
 
     const response = await myFetch(args);
-    console.log(response);
     if (response.words) return buildWordPage(word, options);
 
     createCardChildren({

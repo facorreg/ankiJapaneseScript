@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-unused-vars
-const rootOptions = {
+// eslint-disable-next-line
+const _options = {
   allowRefetch: true,
 };
