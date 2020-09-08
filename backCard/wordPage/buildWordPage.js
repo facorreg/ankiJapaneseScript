@@ -57,7 +57,6 @@ const buildWordPage = async (word, options) => {
 
     return Promise.resolve('.answerWord');
   } catch (err) {
-    console.log(err);
     return Promise.reject(err);
   }
 };
