@@ -46,4 +46,4 @@ const elemGenerator = (elemParent) => (elemData) => {
   return newElem;
 };
 
-const createCardChildren = elemGenerator(document.querySelector('#qa'));
+const createQaChildren = elemGenerator(document.querySelector('#qa'));

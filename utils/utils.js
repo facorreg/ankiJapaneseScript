@@ -62,7 +62,7 @@ const objectPropEnforceArray = (object, keys) => ({
   ...keys.reduce((acc, key) => ({
     ...acc,
     [key]: isArray(object[key]) ? object[key] : [],
-  })),
+  }), {}),
 });
 
 const snakeCaseToCamelCase = (str) => (

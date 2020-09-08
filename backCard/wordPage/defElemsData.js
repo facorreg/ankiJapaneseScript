@@ -1,11 +1,10 @@
 const parseDefStrings = (sense) => {
-  const strJoin = (array, glue) => array.join(glue);
-  const joinAndLower = (array, glue) => array.join(glue).toLowerCase();
+  const lower = (arr) => arr.map((e) => e.toLowerCase());
   const callbacks = {
-    englishDefinitions: strJoin,
-    partsOfSpeech: joinAndLower,
-    tags: joinAndLower,
-    info: joinAndLower,
+    englishDefinitions: (arr, glue) => arr.join(glue),
+    partsOfSpeech: (arr, glue) => lower(arr).join(glue),
+    tags: lower,
+    info: lower,
   };
 
   const keys = Object.keys(callbacks);
@@ -44,12 +43,17 @@ const defElemsData = (senses) => (
           elem: 'span',
           content: englishDefinitions,
           classNames: ['def'],
-        }, {
-          skip: isEmpty(tags),
-          content: `${tags} ${info}`,
+        },
+        ...tags.map((str) => ({
+          content: str,
           classNames: ['tags'],
-        }],
+        })), {
+          elem: 'br',
+        },
+        ...info.map((str) => ({
+          content: str,
+          classNames: ['tags'],
+        }))],
       }],
     };
-  })
-);
+  }));

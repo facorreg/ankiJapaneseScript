@@ -10,10 +10,8 @@ const init = async () => {
 
   try {
     await getFurigana(word.innerText); // debug
-    // if (!isEmpty(answer)) answer.classList.add('hidden');
     setFinalDisplay('#pageWord');
   } catch (err) {
-    // setFinalDisplay('#error');
     Promise.reject(err);
   }
 };

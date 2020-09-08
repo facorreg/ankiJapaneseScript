@@ -30,7 +30,7 @@ const globalNames = [
   'getFurigana',
   /* utils generator */
   'elemGenerator',
-  'createCardChildren',
+  'createQaChildren',
   'createModalChildren', // writable
   /* Common generators */
   'buildHeaders',

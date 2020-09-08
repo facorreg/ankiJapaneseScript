@@ -12,7 +12,7 @@ const buildWordPage = async (word, options) => {
 
     const { words, kanjiWithin } = await myFetch(wordArgs);
 
-    createCardChildren({
+    createQaChildren({
       id: 'answer',
       ownChildren: [{
         classNames: ['hidden', 'answerWord'],
@@ -20,7 +20,7 @@ const buildWordPage = async (word, options) => {
           classNames: ['wordDefContainer'],
           ownChildren: words.map((childWord) => {
             const { japanese, senses } = objectPropEnforceArray(childWord, ['japanese', 'senses']);
-            const [firstJap] = japanese;
+            const [firstJap, ...rest] = japanese;
 
             return {
               classNames: ['defElemContainer'],
@@ -32,7 +32,7 @@ const buildWordPage = async (word, options) => {
                   attributes: { lang: 'jap' },
                 },
                 ...defElemsData(senses),
-                otherFormsData(japanese),
+                otherFormsData(rest),
 
               ],
             };
@@ -57,6 +57,7 @@ const buildWordPage = async (word, options) => {
 
     return Promise.resolve('.answerWord');
   } catch (err) {
-    return Promise.reject();
+    console.log(err);
+    return Promise.reject(err);
   }
 };

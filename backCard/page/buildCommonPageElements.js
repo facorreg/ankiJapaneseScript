@@ -10,7 +10,7 @@ const closeCallback = (e) => {
 
 // eslint-disable-next-line no-unused-vars
 const buildCommonPageElements = (word) => (
-  createCardChildren([{
+  createQaChildren([{
     id: 'modal',
     method: 'innerHTML',
     content: `

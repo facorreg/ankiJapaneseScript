@@ -43,7 +43,7 @@ const testHtmlString = `
 
 <body>
   <div class=\\\"card\\\">
-    <div class=\\\"qa\\\">
+    <div id=\\\"qa\\\">
       <div id=\\\"pageWord\\\" class=\\\"hidden\\\">する</div>
       <!-- <div id=\\\"pageWord\\\" class=\\\"hidden\\\">本</div> -->
       <!-- <div id=\\\"pageWord\\\" class=\\\"hidden\\\">日本人</div> -->

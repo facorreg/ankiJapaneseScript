@@ -2,14 +2,22 @@
 
 const init = () => {
   const word = getCurrentWord();
-  const isWord = word.length > 1 || !hasKanji(word);
+  const options = typeof userOptions !== 'undefined'
+    // eslint-disable-next-line no-undef
+    ? { ..._options, ...userOptions }
+    : _options;
+
+  const isWord = word.length > 1 || !hasKanji(word) || options.handleAsWord;
+
   buildHeaders();
   buildCommonPageElements(word);
   createModalChildren = elemGenerator(document.querySelector('#modalBody'));
 
-  (isWord ? buildWordPage : buildKanjiPage)(word, _options)
+  (isWord ? buildWordPage : buildKanjiPage)(word, options)
     .then((r) => setFinalDisplay(r))
-    .catch(() => setFinalDisplay('#error'));
+    .catch((_) => {
+      setFinalDisplay('#error');
+    });
 };
 
 init();

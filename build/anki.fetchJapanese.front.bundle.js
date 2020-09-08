@@ -66,7 +66,7 @@
     return newElem;
   };
 
-  const createCardChildren = elemGenerator(document.querySelector('#qa'));
+  const createQaChildren = elemGenerator(document.querySelector('#qa'));
   // eslint-disable-next-line no-unused-vars
   const myFetch = async (args) => {
     const {
@@ -156,7 +156,7 @@
     ...keys.reduce((acc, key) => ({
       ...acc,
       [key]: isArray(object[key]) ? object[key] : [],
-    })),
+    }), {}),
   });
 
   const snakeCaseToCamelCase = (str) => (
@@ -268,10 +268,8 @@
 
     try {
       await getFurigana(word.innerText); // debug
-      // if (!isEmpty(answer)) answer.classList.add('hidden');
       setFinalDisplay('#pageWord');
     } catch (err) {
-    // setFinalDisplay('#error');
       Promise.reject(err);
     }
   };

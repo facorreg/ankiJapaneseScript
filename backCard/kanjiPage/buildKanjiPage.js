@@ -33,7 +33,7 @@ const buildKanjiPage = async (word, options) => {
     const response = await myFetch(args);
     if (response.words) return buildWordPage(word, options);
 
-    createCardChildren({
+    createQaChildren({
       id: 'answer',
       ownChildren: buildKanjiData(response),
     });

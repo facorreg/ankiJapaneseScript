@@ -66,7 +66,7 @@
     return newElem;
   };
 
-  const createCardChildren = elemGenerator(document.querySelector('#qa'));
+  const createQaChildren = elemGenerator(document.querySelector('#qa'));
   // eslint-disable-next-line no-unused-vars
   const myFetch = async (args) => {
     const {
@@ -156,7 +156,7 @@
     ...keys.reduce((acc, key) => ({
       ...acc,
       [key]: isArray(object[key]) ? object[key] : [],
-    })),
+    }), {}),
   });
 
   const snakeCaseToCamelCase = (str) => (
@@ -247,7 +247,7 @@
 
   // eslint-disable-next-line no-unused-vars
   const buildCommonPageElements = (word) => (
-    createCardChildren([{
+    createQaChildren([{
       id: 'modal',
       method: 'innerHTML',
       content: `
@@ -343,7 +343,7 @@
       const response = await myFetch(args);
       if (response.words) return buildWordPage(word, options);
 
-      createCardChildren({
+      createQaChildren({
         id: 'answer',
         ownChildren: buildKanjiData(response),
       });
@@ -484,7 +484,7 @@
 
       const { words, kanjiWithin } = await myFetch(wordArgs);
 
-      createCardChildren({
+      createQaChildren({
         id: 'answer',
         ownChildren: [{
           classNames: ['hidden', 'answerWord'],
@@ -492,7 +492,7 @@
             classNames: ['wordDefContainer'],
             ownChildren: words.map((childWord) => {
               const { japanese, senses } = objectPropEnforceArray(childWord, ['japanese', 'senses']);
-              const [firstJap] = japanese;
+              const [firstJap, ...rest] = japanese;
 
               return {
                 classNames: ['defElemContainer'],
@@ -504,7 +504,7 @@
                     attributes: { lang: 'jap' },
                   },
                   ...defElemsData(senses),
-                  otherFormsData(japanese),
+                  otherFormsData(rest),
 
                 ],
               };
@@ -529,17 +529,17 @@
 
       return Promise.resolve('.answerWord');
     } catch (err) {
-      return Promise.reject();
+      console.log(err);
+      return Promise.reject(err);
     }
   };
   const parseDefStrings = (sense) => {
-    const strJoin = (array, glue) => array.join(glue);
-    const joinAndLower = (array, glue) => array.join(glue).toLowerCase();
+    const lower = (arr) => arr.map((e) => e.toLowerCase());
     const callbacks = {
-      englishDefinitions: strJoin,
-      partsOfSpeech: joinAndLower,
-      tags: joinAndLower,
-      info: joinAndLower,
+      englishDefinitions: (arr, glue) => arr.join(glue),
+      partsOfSpeech: (arr, glue) => lower(arr).join(glue),
+      tags: lower,
+      info: lower,
     };
 
     const keys = Object.keys(callbacks);
@@ -578,15 +578,20 @@
             elem: 'span',
             content: englishDefinitions,
             classNames: ['def'],
-          }, {
-            skip: isEmpty(tags),
-            content: `${tags} ${info}`,
+          },
+          ...tags.map((str) => ({
+            content: str,
             classNames: ['tags'],
-          }],
+          })), {
+            elem: 'br',
+          },
+          ...info.map((str) => ({
+            content: str,
+            classNames: ['tags'],
+          }))],
         }],
       };
-    })
-  );
+    }));
   // eslint-disable-next-line no-unused-vars
   const kanjiListData = (kanjiData) => (
     kanjiData.map((data) => {
@@ -679,14 +684,22 @@
 
   const init = () => {
     const word = getCurrentWord();
-    const isWord = word.length > 1 || !hasKanji(word);
+    const options = typeof userOptions !== 'undefined'
+    // eslint-disable-next-line no-undef
+      ? { ..._options, ...userOptions }
+      : _options;
+
+    const isWord = word.length > 1 || !hasKanji(word) || options.handleAsWord;
+
     buildHeaders();
     buildCommonPageElements(word);
     createModalChildren = elemGenerator(document.querySelector('#modalBody'));
 
-    (isWord ? buildWordPage : buildKanjiPage)(word, _options)
+    (isWord ? buildWordPage : buildKanjiPage)(word, options)
       .then((r) => setFinalDisplay(r))
-      .catch(() => setFinalDisplay('#error'));
+      .catch((_) => {
+        setFinalDisplay('#error');
+      });
   };
 
   init();
