@@ -216,24 +216,15 @@
 
   const stringWithFurigana = (word, furigana) => {
     const buildRuby = (w, f = '') => `<ruby>${w}<rt>${f}</rt></ruby>`;
-    let htmlData = '';
 
     if (word && !furigana) return buildRuby(word);
     if (!word && furigana) return buildRuby(furigana);
-    if (word && furigana) {
-      const reg = new RegExp(escapeRegExp(word).replace(allkanjiRegexAsOne, '(.*)'));
-      const matchedKanji = sliceFirst(word.match(reg)) || [];
-      const matchedFurigana = sliceFirst(furigana.match(reg)) || [];
+    const reg = new RegExp(escapeRegExp(word).replace(allkanjiRegexAsOne, '(.*)'));
+    const matchedFurigana = sliceFirst(furigana.match(reg)) || [];
 
-      htmlData = word;
+    const callback = (kanji) => buildRuby(kanji, matchedFurigana.shift());
 
-      matchedKanji
-        .forEach((kanji, i) => {
-          htmlData = htmlData.replace(kanji, buildRuby(kanji, matchedFurigana[i]));
-        });
-    }
-
-    return htmlData;
+    return word.replace(allkanjiRegex, callback);
   };
   const closeCallback = (e) => {
     const modal = document.querySelector('#modal');
@@ -493,7 +484,6 @@
             ownChildren: words.map((childWord) => {
               const { japanese, senses } = objectPropEnforceArray(childWord, ['japanese', 'senses']);
               const [firstJap, ...rest] = japanese;
-
               return {
                 classNames: ['defElemContainer'],
                 ownChildren: [

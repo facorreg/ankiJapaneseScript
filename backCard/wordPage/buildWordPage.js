@@ -21,7 +21,6 @@ const buildWordPage = async (word, options) => {
           ownChildren: words.map((childWord) => {
             const { japanese, senses } = objectPropEnforceArray(childWord, ['japanese', 'senses']);
             const [firstJap, ...rest] = japanese;
-
             return {
               classNames: ['defElemContainer'],
               ownChildren: [
