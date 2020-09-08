@@ -50,7 +50,6 @@ const testHtmlString = `
       <!-- <div id=\\\"pageWord\\\" class=\\\"hidden\\\">SFADLFDKALFK</div> -->
     </div>
   </div>
-  <script src=\\\"anki.fetchJapanese.front.bundle.js\\\"></script>
   <script src=\\\"anki.fetchJapanese.back.bundle.js\\\"></script>
 </body>
 
