@@ -15,7 +15,6 @@ const mergeFiles = (origin, dest) => {
 
   if (pathIsDir) {
     const contentPaths = getFolderContent(origin);
-    // eslint-disable-next-line no-unused-vars
     contentPaths.forEach((path) => mergeFiles(`${origin}/${path}`, dest));
     return;
   }
@@ -25,7 +24,6 @@ const mergeFiles = (origin, dest) => {
 };
 
 const merger = (paths, dest) => (
-  // eslint-disable-next-line no-console
   paths.forEach((path) => mergeFiles(path, dest))
 );
 
