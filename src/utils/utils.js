@@ -51,6 +51,7 @@ const isEmpty = (obj) => {
 
 const filterEmpty = (array) => array.filter((e) => !isEmpty(e));
 
+const first = (array) => (!isEmpty(array) ? array.slice(0, 1) : array);
 const sliceFirst = (array) => (!isEmpty(array) ? array.slice(1) : array);
 
 const findValidFormat = (sources, formats) => (
@@ -110,11 +111,7 @@ const allkanjiRegexAsOne = /([一-龯]|\u3005)+/g;
 
 const getKanji = (string, greed = false) => string.match(greed ? allkanjiRegex : kanjiRegex);
 const hasKanji = (string) => Boolean(getKanji(string));
-
-/*
-  not used yet.
-  I need to see how Jisho handles its data first.
-*/
+const isKanji = (string) => hasKanji(string) && string.length === 1;
 
 const escapeRegExp = (string) => (
   string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string

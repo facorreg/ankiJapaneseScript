@@ -3,6 +3,10 @@
     "eslint-config-airbnb": "^18.2.0",
     "eslint-plugin-jsx-a11y": "^6.3.1"
   },
+  "scripts": {
+    "build": "node ./tools/builder/buildSingleScript.js ./",
+    "clean": "rm -rf build"
+  },
   "devDependencies": {
     "eslint": "^7.8.1",
     "eslint-config-airbnb-base": "^14.2.0",

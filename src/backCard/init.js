@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
-
-const init = () => {
+const initBackCard = () => {
+  if (document.querySelector('#loader')) return;
   const word = getCurrentWord();
   const options = typeof userOptions !== 'undefined'
     // eslint-disable-next-line no-undef
@@ -19,5 +19,3 @@ const init = () => {
       setFinalDisplay('#error');
     });
 };
-
-init();

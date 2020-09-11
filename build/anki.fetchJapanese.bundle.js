@@ -2,6 +2,7 @@
 // eslint-disable-next-line no-underscore-dangle, no-unused-vars
   const _options = {
     allowRefetch: true,
+    handleAsWord: true,
   };
   /*
   Note: never push an .env file as is
@@ -145,6 +146,7 @@
 
   const filterEmpty = (array) => array.filter((e) => !isEmpty(e));
 
+  const first = (array) => (!isEmpty(array) ? array.slice(0, 1) : array);
   const sliceFirst = (array) => (!isEmpty(array) ? array.slice(1) : array);
 
   const findValidFormat = (sources, formats) => (
@@ -204,11 +206,7 @@
 
   const getKanji = (string, greed = false) => string.match(greed ? allkanjiRegex : kanjiRegex);
   const hasKanji = (string) => Boolean(getKanji(string));
-
-  /*
-  not used yet.
-  I need to see how Jisho handles its data first.
-*/
+  const isKanji = (string) => hasKanji(string) && string.length === 1;
 
   const escapeRegExp = (string) => (
     string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
@@ -225,6 +223,95 @@
     const callback = (kanji) => buildRuby(kanji, matchedFurigana.shift());
 
     return word.replace(allkanjiRegexAsOne, callback);
+  };
+  // eslint-disable-next-line no-unused-vars
+  const swapContent = (array, elem) => {
+    let index = 0;
+
+    const callback = (e) => {
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      // eslint-disable-next-line no-nested-ternary
+      index = e.key === 'ArrowUp'
+        ? (index + 1 === array.length - 1 ? index + 1 : 0)
+        : (index ? index - 1 : array.length - 1);
+      // eslint-disable-next-line no-param-reassign
+      elem.innerHTML = array[index];
+    };
+
+    document.addEventListener('keyup', callback);
+  };
+  // eslint-disable-next-line no-unused-vars
+  const buildTradCard = async (word, wordElem) => {
+    try {
+      const traductions = await myFetch({
+        url: KANJI_API_URL,
+        endpoint: '/word/traductions',
+        args: { word },
+      });
+
+      if (isEmpty(traductions)) {
+        return Promise.resolve(wordElem.classList.remove('hidden'));
+      }
+
+      wordElem.remove();
+
+      const trad = createQaChildren({
+        id: 'trad',
+        content: first(traductions),
+      });
+
+      swapContent(traductions, trad);
+      return Promise.resolve();
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  };
+  // eslint-disable-next-line no-unused-vars
+  const buildWordCard = async (word) => {
+    const wordElem = document.querySelector('#pageWord');
+
+    const args = {
+      url: KANJI_API_URL,
+      endpoint: 'word/readings',
+      args: { word },
+    };
+
+    try {
+      const readings = await myFetch(args);
+      if (isEmpty(readings)) return Promise.resolve();
+
+      const withFurigana = readings.map((reading) => stringWithFurigana(word, reading));
+      wordElem.innerHTML = first(withFurigana);
+      swapContent(withFurigana, wordElem);
+
+      wordElem.classList.remove('hidden');
+      setFinalDisplay('#pageWord');
+      return Promise.resolve();
+    } catch (err) {
+      return Promise.reject();
+    }
+  };
+  // eslint-disable-next-line no-unused-vars
+  const initFrontCard = async () => {
+  /* anki fails to refresh the answer otherwise */
+    ['#modal', '#loader', '#error']
+      .forEach((id) => {
+        const elem = document.querySelector(id);
+        if (elem) elem.remove();
+      });
+
+    const wordElem = document.querySelector('#pageWord');
+
+    const toDisplayElem = document.querySelector('.toDisplay');
+    const isTrad = toDisplayElem.innerText === 'trad';
+    toDisplayElem.remove();
+    const word = wordElem.innerText;
+
+    try {
+      await (isTrad ? buildTradCard : buildWordCard)(word, wordElem);
+    } catch (err) {
+      Promise.reject(err);
+    }
   };
   const closeCallback = (e) => {
     const modal = document.querySelector('#modal');
@@ -476,7 +563,7 @@
       const { words, kanjiWithin } = await myFetch(wordArgs);
 
       createQaChildren({
-        id: 'answer',
+        id: '_answer',
         ownChildren: [{
           classNames: ['hidden', 'answerWord'],
           ownChildren: [{
@@ -670,8 +757,8 @@
     ],
   });
   /* eslint-disable no-unused-vars */
-
-  const init = () => {
+  const initBackCard = () => {
+    if (document.querySelector('#loader')) return;
     const word = getCurrentWord();
     const options = typeof userOptions !== 'undefined'
     // eslint-disable-next-line no-undef
@@ -690,6 +777,11 @@
         setFinalDisplay('#error');
       });
   };
+  const init = () => (
+    !document.querySelector('#answer')
+      ? initFrontCard()
+      : initBackCard()
+  );
 
   init();
 })();

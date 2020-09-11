@@ -6,8 +6,11 @@ body {
   margin: 0;
   position: relative;
 }
-
 #answer {
+  display: 'none';
+}
+
+#_answer {
   margin: 75px auto;
   max-width: 1300px;
 }
@@ -54,13 +57,20 @@ body {
   min-height: 100vh;
 }
 
-#pageWord {
+#pageWord, #trad {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  font-size: 5em;
   width: 100%;
   line-height: 1;
+}
+
+#pageWord {
+  font-size: 2em;
+}
+
+#trad {
+  font-size: 1.5em;
 }
 
 #pageWord > ruby > rt {
@@ -333,7 +343,6 @@ body {
 .close:after {
   transform: rotate(-45deg);
 }
-
 .answerWord {
   display: grid;
   grid-template-areas: 

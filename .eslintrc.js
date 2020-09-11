@@ -11,6 +11,7 @@ const globalNames = [
   /* utils */
   'isEmpty',
   'isArray',
+  'first',
   'get',
   'filterEmpty',
   'uniq',
@@ -26,27 +27,32 @@ const globalNames = [
   'findValidFormat',
   'objectListKeysToCamelCase',
   'objectPropEnforceArray',
-  /* frontSide */
-  'getFurigana',
   /* utils generator */
   'elemGenerator',
   'createQaChildren',
   'createModalChildren', // writable
-  /* Common generators */
-  'buildHeaders',
-  'buildCommonPageElements',
-  /* kanji page build */
+  /* frontSide */
+  'buildWordCard',
+  'buildTradCard',
+  'swapContent',
+  'initFrontCard',
+  /* backside */
+  /* => kanji page build */
   'buildKanjiPage',
   'buildKanjiData',
   'overviewData',
   'sideBarData',
   'strokesImagesData',
   'examplesData',
-  /* word page build */
+  /* => word page build */
   'buildWordPage',
   'defElemsData',
   'otherFormsData',
   'kanjiListData',
+  /* => Common generators */
+  'buildHeaders',
+  'buildCommonPageElements',
+  'initBackCard',
   /* Any page build */
   'setFinalDisplay',
 ];

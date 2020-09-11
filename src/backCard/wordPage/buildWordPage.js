@@ -13,7 +13,7 @@ const buildWordPage = async (word, options) => {
     const { words, kanjiWithin } = await myFetch(wordArgs);
 
     createQaChildren({
-      id: 'answer',
+      id: '_answer',
       ownChildren: [{
         classNames: ['hidden', 'answerWord'],
         ownChildren: [{

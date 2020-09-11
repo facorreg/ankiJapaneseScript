@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-const getFurigana = async (word) => {
+const buildWordCard = async (word) => {
   const wordElem = document.querySelector('#pageWord');
 
   const args = {
@@ -12,8 +12,12 @@ const getFurigana = async (word) => {
     const readings = await myFetch(args);
     if (isEmpty(readings)) return Promise.resolve();
 
-    wordElem.innerHTML = stringWithFurigana(word, readings[0]);
+    const withFurigana = readings.map((reading) => stringWithFurigana(word, reading));
+    wordElem.innerHTML = first(withFurigana);
+    swapContent(withFurigana, wordElem);
+
     wordElem.classList.remove('hidden');
+    setFinalDisplay('#pageWord');
     return Promise.resolve();
   } catch (err) {
     return Promise.reject();
