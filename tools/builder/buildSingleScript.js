@@ -7,24 +7,29 @@ const {
   createAnkiHTMLfiles,
 } = require('./builders')(relativePath);
 
-const jsPaths = [
+const commonJsPaths = [
   /* utils */
   `${relativePath}src/options.js`,
   `${relativePath}src/env.js`,
   `${relativePath}src/utils`,
-  /* front cards */
-  `${relativePath}src/frontCard/swapContent.js`,
-  `${relativePath}src/frontCard/tradCard`,
-  `${relativePath}src/frontCard/wordCard`,
-  `${relativePath}src/frontCard/init.js`,
-  /* back cards */
-  `${relativePath}src/backCard/page`,
-  `${relativePath}src/backCard/kanjiPage`,
-  `${relativePath}src/backCard/wordPage`,
-  `${relativePath}src/backCard/init.js`,
-  /* init */
-  `${relativePath}src/init.js`,
 ];
+
+const jsPaths = {
+  front: [
+    /* front cards */
+    `${relativePath}src/frontCard/swapContent.js`,
+    `${relativePath}src/frontCard/tradCard`,
+    `${relativePath}src/frontCard/wordCard`,
+    `${relativePath}src/frontCard/init.js`,
+  ],
+  back: [
+    /* back cards */
+    `${relativePath}src/backCard/page`,
+    `${relativePath}src/backCard/kanjiPage`,
+    `${relativePath}src/backCard/wordPage`,
+    `${relativePath}src/backCard/init.js`,
+  ],
+};
 
 const stylePaths = [`${relativePath}style`];
 const buildPath = `${relativePath}build`;
@@ -34,7 +39,8 @@ const buildBundles = async () => {
   await mkdir(buildPath);
 
   createCSSFile(stylePaths);
-  createEncapsulatedScript(jsPaths);
+  Object.keys(jsPaths)
+    .forEach((key) => createEncapsulatedScript([...commonJsPaths, ...jsPaths[key]], key));
   createAnkiHTMLfiles(['front', 'back']);
 };
 

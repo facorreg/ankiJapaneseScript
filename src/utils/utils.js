@@ -129,3 +129,8 @@ const stringWithFurigana = (word, furigana) => {
 
   return word.replace(allkanjiRegexAsOne, callback);
 };
+
+const promiseRemoveHidden = (elem, err) => {
+  elem.classList.remove('hidden');
+  return Promise[err ? 'resolve' : 'reject'](err || '');
+};

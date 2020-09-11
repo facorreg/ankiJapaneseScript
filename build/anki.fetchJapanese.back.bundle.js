@@ -224,94 +224,10 @@
 
     return word.replace(allkanjiRegexAsOne, callback);
   };
-  // eslint-disable-next-line no-unused-vars
-  const swapContent = (array, elem) => {
-    let index = 0;
 
-    const callback = (e) => {
-      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
-      // eslint-disable-next-line no-nested-ternary
-      index = e.key === 'ArrowUp'
-        ? (index + 1 === array.length - 1 ? index + 1 : 0)
-        : (index ? index - 1 : array.length - 1);
-      // eslint-disable-next-line no-param-reassign
-      elem.innerHTML = array[index];
-    };
-
-    document.addEventListener('keyup', callback);
-  };
-  // eslint-disable-next-line no-unused-vars
-  const buildTradCard = async (word, wordElem) => {
-    try {
-      const traductions = await myFetch({
-        url: KANJI_API_URL,
-        endpoint: '/word/traductions',
-        args: { word },
-      });
-
-      if (isEmpty(traductions)) {
-        return Promise.resolve(wordElem.classList.remove('hidden'));
-      }
-
-      wordElem.remove();
-
-      const trad = createQaChildren({
-        id: 'trad',
-        content: first(traductions),
-      });
-
-      swapContent(traductions, trad);
-      return Promise.resolve();
-    } catch (err) {
-      return Promise.reject(err);
-    }
-  };
-  // eslint-disable-next-line no-unused-vars
-  const buildWordCard = async (word) => {
-    const wordElem = document.querySelector('#pageWord');
-
-    const args = {
-      url: KANJI_API_URL,
-      endpoint: 'word/readings',
-      args: { word },
-    };
-
-    try {
-      const readings = await myFetch(args);
-      if (isEmpty(readings)) return Promise.resolve();
-
-      const withFurigana = readings.map((reading) => stringWithFurigana(word, reading));
-      wordElem.innerHTML = first(withFurigana);
-      swapContent(withFurigana, wordElem);
-
-      wordElem.classList.remove('hidden');
-      setFinalDisplay('#pageWord');
-      return Promise.resolve();
-    } catch (err) {
-      return Promise.reject();
-    }
-  };
-  // eslint-disable-next-line no-unused-vars
-  const initFrontCard = async () => {
-  /* anki fails to refresh the answer otherwise */
-    ['#modal', '#loader', '#error']
-      .forEach((id) => {
-        const elem = document.querySelector(id);
-        if (elem) elem.remove();
-      });
-
-    const wordElem = document.querySelector('#pageWord');
-
-    const toDisplayElem = document.querySelector('.toDisplay');
-    const isTrad = toDisplayElem.innerText === 'trad';
-    toDisplayElem.remove();
-    const word = wordElem.innerText;
-
-    try {
-      await (isTrad ? buildTradCard : buildWordCard)(word, wordElem);
-    } catch (err) {
-      Promise.reject(err);
-    }
+  const promiseRemoveHidden = (elem, err) => {
+    elem.classList.remove('hidden');
+    return Promise[err ? 'resolve' : 'reject'](err || '');
   };
   const closeCallback = (e) => {
     const modal = document.querySelector('#modal');
@@ -756,9 +672,8 @@
     })),
     ],
   });
-  /* eslint-disable no-unused-vars */
-  const initBackCard = () => {
-    if (document.querySelector('#loader')) return;
+  const init = () => {
+    if (document.querySelector('#loader')) return Promise.resolve();
     const word = getCurrentWord();
     const options = typeof userOptions !== 'undefined'
     // eslint-disable-next-line no-undef
@@ -771,17 +686,13 @@
     buildCommonPageElements(word);
     createModalChildren = elemGenerator(document.querySelector('#modalBody'));
 
-    (isWord ? buildWordPage : buildKanjiPage)(word, options)
+    return (isWord ? buildWordPage : buildKanjiPage)(word, options)
       .then((r) => setFinalDisplay(r))
-      .catch((_) => {
+      .catch((err) => {
         setFinalDisplay('#error');
+        return Promise.reject(err);
       });
   };
-  const init = () => (
-    !document.querySelector('#answer')
-      ? initFrontCard()
-      : initBackCard()
-  );
 
   init();
 })();

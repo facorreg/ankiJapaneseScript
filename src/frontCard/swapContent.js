@@ -5,8 +5,8 @@ const swapContent = (array, elem) => {
   const callback = (e) => {
     if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
     // eslint-disable-next-line no-nested-ternary
-    index = e.key === 'ArrowUp'
-      ? (index + 1 === array.length - 1 ? index + 1 : 0)
+    index = e.key === 'ArrowDown'
+      ? (index + 1 < array.length ? index + 1 : 0)
       : (index ? index - 1 : array.length - 1);
     // eslint-disable-next-line no-param-reassign
     elem.innerHTML = array[index];

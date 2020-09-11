@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-unused-vars
-const initFrontCard = async () => {
-  /* anki fails to refresh the answer otherwise */
+const init = async () => {
   ['#modal', '#loader', '#error']
     .forEach((id) => {
       const elem = document.querySelector(id);
@@ -15,8 +13,10 @@ const initFrontCard = async () => {
   const word = wordElem.innerText;
 
   try {
-    await (isTrad ? buildTradCard : buildWordCard)(word, wordElem);
+    return (isTrad ? buildTradCard : buildWordCard)(word, wordElem);
   } catch (err) {
-    Promise.reject(err);
+    return Promise.reject(err);
   }
 };
+
+init();

@@ -7,9 +7,7 @@ const buildTradCard = async (word, wordElem) => {
       args: { word },
     });
 
-    if (isEmpty(traductions)) {
-      return Promise.resolve(wordElem.classList.remove('hidden'));
-    }
+    if (isEmpty(traductions)) return promiseRemoveHidden(wordElem);
 
     wordElem.remove();
 
@@ -21,6 +19,6 @@ const buildTradCard = async (word, wordElem) => {
     swapContent(traductions, trad);
     return Promise.resolve();
   } catch (err) {
-    return Promise.reject(err);
+    return promiseRemoveHidden(wordElem, err);
   }
 };

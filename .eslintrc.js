@@ -17,6 +17,7 @@ const globalNames = [
   'uniq',
   'insertElemAtIndex',
   'getCurrentWord',
+  'promiseRemoveHidden',
   /* utils kanji handling */
   'getKanji',
   'hasKanji',

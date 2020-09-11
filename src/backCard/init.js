@@ -1,6 +1,5 @@
-/* eslint-disable no-unused-vars */
-const initBackCard = () => {
-  if (document.querySelector('#loader')) return;
+const init = () => {
+  if (document.querySelector('#loader')) return Promise.resolve();
   const word = getCurrentWord();
   const options = typeof userOptions !== 'undefined'
     // eslint-disable-next-line no-undef
@@ -13,9 +12,12 @@ const initBackCard = () => {
   buildCommonPageElements(word);
   createModalChildren = elemGenerator(document.querySelector('#modalBody'));
 
-  (isWord ? buildWordPage : buildKanjiPage)(word, options)
+  return (isWord ? buildWordPage : buildKanjiPage)(word, options)
     .then((r) => setFinalDisplay(r))
-    .catch((_) => {
+    .catch((err) => {
       setFinalDisplay('#error');
+      return Promise.reject(err);
     });
 };
+
+init();
