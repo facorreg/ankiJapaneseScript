@@ -3,10 +3,20 @@ const strokesImagesData = (images = []) => ({
   skip: isEmpty(images),
   classNames: ['strokeOrderContainer'],
   ownChildren: [{
-    classNames: ['strokeOrder'],
-    ownChildren: images.map((image) => ({
-      elem: 'img',
-      attributes: { src: image },
-    })),
+    classNames: ['strokeOverflow'],
+    ownChildren: [{
+      classNames: ['strokeOrder'],
+      ownChildren: [
+        ...images.map((image) => ({
+          classNames: ['imgContainer'],
+          ownChildren: [{
+            elem: 'img',
+            attributes: { src: image },
+          },
+          ...[...Array(2)].map(() => ({ classNames: ['drawGrid'] })),
+          ],
+        })),
+      ],
+    }],
   }],
 });

@@ -1,10 +1,7 @@
 const init = () => {
   if (document.querySelector('#loader')) return Promise.resolve();
   const word = getCurrentWord();
-  const options = typeof userOptions !== 'undefined'
-    // eslint-disable-next-line no-undef
-    ? { ..._options, ...userOptions }
-    : _options;
+  const options = getOptions();
 
   const isWord = word.length > 1 || !hasKanji(word) || options.handleAsWord;
 

@@ -29,16 +29,16 @@ body {
   flex-direction: column;
 }
 
-#error > img, #modal img {
+#error > img {
   height: 175px;
 }
 
-#error > a > img, #modal > a > img {
+#error > a > img {
   height: 100px;
   margin-bottom: 40px;
 }
 
-#error p, #modal p {
+#error p {
   line-height: 50px;
 }
 

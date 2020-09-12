@@ -1,8 +1,19 @@
 (() => {
-// eslint-disable-next-line no-underscore-dangle, no-unused-vars
+// eslint-disable-next-line no-underscore-dangle
   const _options = {
     allowRefetch: true,
     handleAsWord: true,
+    questionShowFurigana: true,
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  const getOptions = () => {
+    const options = typeof userOptions !== 'undefined'
+    // eslint-disable-next-line no-undef
+      ? { ..._options, ...userOptions }
+      : _options;
+
+    return options;
   };
   /*
   Note: never push an .env file as is
@@ -217,7 +228,8 @@
 
     if (word && !furigana) return buildRuby(word);
     if (!word && furigana) return buildRuby(furigana);
-    const reg = new RegExp(escapeRegExp(word).replace(allkanjiRegexAsOne, '(.*)'));
+    const regWord = word.startsWith('*') ? sliceFirst(word) : word;
+    const reg = new RegExp(escapeRegExp(regWord).replace(allkanjiRegexAsOne, '(.*)'));
     const matchedFurigana = sliceFirst(furigana.match(reg)) || [];
 
     const callback = (kanji) => buildRuby(kanji, matchedFurigana.shift());
@@ -270,8 +282,11 @@
     }
   };
   // eslint-disable-next-line no-unused-vars
-  const buildWordCard = async (word, wordElem) => {
-    if (!hasKanji(word)) return promiseRemoveHidden(wordElem);
+  const buildWordCard = async (word, wordElem, options) => {
+    if (!options.questionShowFurigana || !hasKanji(word)) {
+      return promiseRemoveHidden(wordElem);
+    }
+
     const args = {
       url: KANJI_API_URL,
       endpoint: 'word/readings',
@@ -300,6 +315,7 @@
         if (elem) elem.remove();
       });
 
+    const options = getOptions();
     const wordElem = document.querySelector('#pageWord');
 
     const toDisplayElem = document.querySelector('.toDisplay');
@@ -308,7 +324,7 @@
     const word = wordElem.innerText;
 
     try {
-      return (isTrad ? buildTradCard : buildWordCard)(word, wordElem);
+      return (isTrad ? buildTradCard : buildWordCard)(word, wordElem, options);
     } catch (err) {
       return Promise.reject(err);
     }

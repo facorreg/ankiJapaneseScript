@@ -1,8 +1,19 @@
 (() => {
-// eslint-disable-next-line no-underscore-dangle, no-unused-vars
+// eslint-disable-next-line no-underscore-dangle
   const _options = {
     allowRefetch: true,
     handleAsWord: true,
+    questionShowFurigana: true,
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  const getOptions = () => {
+    const options = typeof userOptions !== 'undefined'
+    // eslint-disable-next-line no-undef
+      ? { ..._options, ...userOptions }
+      : _options;
+
+    return options;
   };
   /*
   Note: never push an .env file as is
@@ -217,7 +228,8 @@
 
     if (word && !furigana) return buildRuby(word);
     if (!word && furigana) return buildRuby(furigana);
-    const reg = new RegExp(escapeRegExp(word).replace(allkanjiRegexAsOne, '(.*)'));
+    const regWord = word.startsWith('*') ? sliceFirst(word) : word;
+    const reg = new RegExp(escapeRegExp(regWord).replace(allkanjiRegexAsOne, '(.*)'));
     const matchedFurigana = sliceFirst(furigana.match(reg)) || [];
 
     const callback = (kanji) => buildRuby(kanji, matchedFurigana.shift());
@@ -338,7 +350,7 @@
       if (response.words) return buildWordPage(word, options);
 
       createQaChildren({
-        id: 'answer',
+        id: '_answer',
         ownChildren: buildKanjiData(response),
       });
 
@@ -457,11 +469,21 @@
     skip: isEmpty(images),
     classNames: ['strokeOrderContainer'],
     ownChildren: [{
-      classNames: ['strokeOrder'],
-      ownChildren: images.map((image) => ({
-        elem: 'img',
-        attributes: { src: image },
-      })),
+      classNames: ['strokeOverflow'],
+      ownChildren: [{
+        classNames: ['strokeOrder'],
+        ownChildren: [
+          ...images.map((image) => ({
+            classNames: ['imgContainer'],
+            ownChildren: [{
+              elem: 'img',
+              attributes: { src: image },
+            },
+            ...[...Array(2)].map(() => ({ classNames: ['drawGrid'] })),
+            ],
+          })),
+        ],
+      }],
     }],
   });
   // eslint-disable-next-line no-unused-vars
@@ -675,10 +697,7 @@
   const init = () => {
     if (document.querySelector('#loader')) return Promise.resolve();
     const word = getCurrentWord();
-    const options = typeof userOptions !== 'undefined'
-    // eslint-disable-next-line no-undef
-      ? { ..._options, ...userOptions }
-      : _options;
+    const options = getOptions();
 
     const isWord = word.length > 1 || !hasKanji(word) || options.handleAsWord;
 

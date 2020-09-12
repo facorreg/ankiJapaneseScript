@@ -39,6 +39,11 @@ const createAnkiHTMLfiles = (relativePath) => (types) => {
         <!-- Put me where the ${type} card's HTML should be ${flipInfo} -->
         <div id=\\\"pageWord\\\" class=\\\"hidden script${type}\\\">{{Word}}</div>
         ${toDisplayStr}
+        <script>
+          var userOptions = {
+            /* your customized options go there */
+          };
+        </script>
         <script class=\\\"script${type}\\\"src=\\\"anki.fetchJapanese.${type}.bundle.js\\\"></script>
       `
         .split('\n')

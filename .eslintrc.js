@@ -1,6 +1,6 @@
 const globalNames = [
   /* options */
-  '_options',
+  'getOptions',
   /* env */
   'KANJI_API_URL',
   'JISHO_URL',

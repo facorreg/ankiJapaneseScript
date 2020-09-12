@@ -34,7 +34,7 @@ const buildKanjiPage = async (word, options) => {
     if (response.words) return buildWordPage(word, options);
 
     createQaChildren({
-      id: 'answer',
+      id: '_answer',
       ownChildren: buildKanjiData(response),
     });
 

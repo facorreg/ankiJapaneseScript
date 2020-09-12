@@ -122,7 +122,8 @@ const stringWithFurigana = (word, furigana) => {
 
   if (word && !furigana) return buildRuby(word);
   if (!word && furigana) return buildRuby(furigana);
-  const reg = new RegExp(escapeRegExp(word).replace(allkanjiRegexAsOne, '(.*)'));
+  const regWord = word.startsWith('*') ? sliceFirst(word) : word;
+  const reg = new RegExp(escapeRegExp(regWord).replace(allkanjiRegexAsOne, '(.*)'));
   const matchedFurigana = sliceFirst(furigana.match(reg)) || [];
 
   const callback = (kanji) => buildRuby(kanji, matchedFurigana.shift());

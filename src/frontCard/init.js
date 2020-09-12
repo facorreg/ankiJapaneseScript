@@ -5,6 +5,7 @@ const init = async () => {
       if (elem) elem.remove();
     });
 
+  const options = getOptions();
   const wordElem = document.querySelector('#pageWord');
 
   const toDisplayElem = document.querySelector('.toDisplay');
@@ -13,7 +14,7 @@ const init = async () => {
   const word = wordElem.innerText;
 
   try {
-    return (isTrad ? buildTradCard : buildWordCard)(word, wordElem);
+    return (isTrad ? buildTradCard : buildWordCard)(word, wordElem, options);
   } catch (err) {
     return Promise.reject(err);
   }

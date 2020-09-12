@@ -1,6 +1,9 @@
 // eslint-disable-next-line no-unused-vars
-const buildWordCard = async (word, wordElem) => {
-  if (!hasKanji(word)) return promiseRemoveHidden(wordElem);
+const buildWordCard = async (word, wordElem, options) => {
+  if (!options.questionShowFurigana || !hasKanji(word)) {
+    return promiseRemoveHidden(wordElem);
+  }
+
   const args = {
     url: KANJI_API_URL,
     endpoint: 'word/readings',
