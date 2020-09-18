@@ -260,18 +260,27 @@
   // eslint-disable-next-line no-unused-vars
   const buildTradCard = async (word, wordElem) => {
     try {
-      const traductions = await myFetch({
+      const data = await myFetch({
         url: KANJI_API_URL,
-        endpoint: '/word/traductions',
+        endpoint: 'word/traductions',
         args: { word },
-      });
+      }) || {};
 
-      if (isEmpty(traductions)) return promiseRemoveHidden(wordElem);
+      if (isEmpty(data)) return promiseRemoveHidden(wordElem);
+
+      const traductions = data
+        .map((senses) => senses
+          .map(({ partsOfSpeech, tags, englishDefinitions }, i) => `
+          <span class="defPart">${partsOfSpeech.join(', ')}</span>
+          <span>${i}. <span class="def">${englishDefinitions.join(', ')}</span></span>
+          <span class="tags">${tags.join(', ')}</span>
+        `).join('<br />'));
 
       wordElem.remove();
 
       const trad = createQaChildren({
         id: 'trad',
+        method: 'innerHTML',
         content: first(traductions),
       });
 
@@ -308,6 +317,19 @@
       return promiseRemoveHidden(wordElem, err);
     }
   };
+  // eslint-disable-next-line no-unused-vars
+  const buildHeaders = () => (
+    !document.querySelector('#Roboto')
+      ? elemGenerator(document.head)({
+        elem: 'link',
+        id: 'Roboto',
+        attributes: {
+          href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap',
+          rel: 'stylesheet',
+        },
+      })
+      : null
+  );
   const init = async () => {
     ['#modal', '#loader', '#error']
       .forEach((id) => {
@@ -324,6 +346,7 @@
     const word = wordElem.innerText;
 
     try {
+      buildHeaders();
       return (isTrad ? buildTradCard : buildWordCard)(word, wordElem, options);
     } catch (err) {
       return Promise.reject(err);

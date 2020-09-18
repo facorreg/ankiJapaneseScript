@@ -20,6 +20,7 @@ const jsPaths = {
     `${relativePath}src/frontCard/swapContent.js`,
     `${relativePath}src/frontCard/tradCard`,
     `${relativePath}src/frontCard/wordCard`,
+    `${relativePath}src/backCard/page/buildHeaders.js`,
     `${relativePath}src/frontCard/init.js`,
   ],
   back: [

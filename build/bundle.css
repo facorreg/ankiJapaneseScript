@@ -80,7 +80,28 @@ body {
 .hidden {
   display: none !important;
 }
-.answerKanji {
+#trad {
+  padding-top: 75px;
+  max-width: 750px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 30px;
+  font-family: 'Roboto', sans-serif;
+}
+
+#trad .defPart {
+  margin-bottom: 20px;
+}
+
+#trad .tag {
+  margin-bottom: 7px;
+}
+
+#trad * {
+  line-height: 40px;
+}.answerKanji {
   display: grid;
 
   grid-template-areas: 

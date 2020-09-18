@@ -14,6 +14,7 @@ const init = async () => {
   const word = wordElem.innerText;
 
   try {
+    buildHeaders();
     return (isTrad ? buildTradCard : buildWordCard)(word, wordElem, options);
   } catch (err) {
     return Promise.reject(err);
