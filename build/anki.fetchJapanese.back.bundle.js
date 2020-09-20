@@ -84,20 +84,24 @@
     const {
       url,
       endpoint = '',
-      headers = {},
+      requestInit = {},
       args: queryArgs = {},
     } = args;
 
+    const headers = new Headers();
+    const { headerData = {} } = requestInit;
+    Object.keys(headerData).forEach((prop) => headers.append(prop, headerData[prop]));
     const argString = Object
       .keys(queryArgs)
-      .map((key, i) => `${!i ? '?' : ''}${key}=${
-        !isArray(queryArgs[key])
-          ? queryArgs[key]
-          : queryArgs[key].join(`&${key}=`)}`)
+      .map((key, i) => `${!i ? '?' : ''}${key}=${!isArray(queryArgs[key])
+        ? queryArgs[key]
+        : queryArgs[key].join(`&${key}=`)}`)
       .join('&');
 
+    const requestInfo = encodeURI(`${url}${endpoint}${argString}`);
+
     try {
-      const response = await fetch(encodeURI(`${url}${endpoint}${argString}`, headers));
+      const response = await fetch(requestInfo, { ...requestInit, headers });
       const json = await response.json();
       return json;
     } catch (err) {
@@ -116,22 +120,6 @@
   };
 
   const getCurrentWord = () => document.querySelector('#pageWord').textContent;
-
-  const get = (object, path, defaultVal = '') => {
-    const isLastPath = !path.includes('.');
-
-    if (isLastPath) {
-      return isObject(object) ? object[path] || defaultVal : defaultVal;
-    }
-
-    const nextLayer = path.slice(0, path.indexOf('.'));
-    const { [nextLayer]: nextObject } = object;
-    const remainingLayers = path.slice(path.indexOf('.') + 1);
-
-    return typeof nextObject !== 'undefined'
-      ? get(nextObject, remainingLayers, defaultVal)
-      : defaultVal;
-  };
 
   const uniq = (array) => array.filter((value, index) => array.indexOf(value) === index);
 
@@ -163,6 +151,37 @@
   const findValidFormat = (sources, formats) => (
     Object.keys(sources).find((key) => formats.includes(key))
   );
+
+  const isNaN = (valeur) => Number.isNaN(Number(valeur));
+
+  const get = (object, path, defaultVal = '') => {
+    const isLastPath = !path.includes('.');
+    if (isEmpty(object)) return defaultVal;
+    if (isLastPath) {
+      return isObject(object) ? object[path] || defaultVal : defaultVal;
+    }
+
+    const nextLayer = path.slice(0, path.indexOf('.'));
+
+    const handleArray = (arr, index) => (isNaN(index) ? null : arr[index]);
+
+    const handleObj = (obj) => {
+      const { [nextLayer]: nextObject } = obj;
+      return nextObject;
+    };
+
+    const nextObject = isArray(object)
+      ? handleArray(object, Number(nextLayer))
+      : handleObj(object);
+
+    // console.log(isArray(object), nextObject, nextLayer);
+
+    const remainingLayers = path.slice(path.indexOf('.') + 1);
+
+    return !isEmpty(nextObject)
+      ? get(nextObject, remainingLayers, defaultVal)
+      : defaultVal;
+  };
 
   const objectPropEnforceArray = (object, keys) => ({
     ...object,
@@ -218,7 +237,7 @@
   const getKanji = (string, greed = false) => string.match(greed ? allkanjiRegex : kanjiRegex);
   const hasKanji = (string) => Boolean(getKanji(string));
   const isKanji = (string) => hasKanji(string) && string.length === 1;
-
+  const hasJapaneseCharacters = (str) => Boolean(str.match(/[\u3000-\u303F]|[\u3040-\u309F]|[\u30A0-\u30FF]|[\uFF00-\uFFEF]|[\u4E00-\u9FAF]|[\u2605-\u2606]|[\u2190-\u2195]|\u203B/g));
   const escapeRegExp = (string) => (
     string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
   );
@@ -241,6 +260,19 @@
     elem.classList.remove('hidden');
     return Promise[err ? 'resolve' : 'reject'](err || '');
   };
+  // eslint-disable-next-line no-unused-vars
+  const buildHeaders = () => (
+    !document.querySelector('#Roboto')
+      ? elemGenerator(document.head)({
+        elem: 'link',
+        id: 'Roboto',
+        attributes: {
+          href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap',
+          rel: 'stylesheet',
+        },
+      })
+      : null
+  );
   const closeCallback = (e) => {
     const modal = document.querySelector('#modal');
     const modalBody = document.querySelector('#modalBody');
@@ -306,18 +338,368 @@
     }])
   );
   // eslint-disable-next-line no-unused-vars
-  const buildHeaders = () => (
-    !document.querySelector('#Roboto')
-      ? elemGenerator(document.head)({
-        elem: 'link',
-        id: 'Roboto',
-        attributes: {
-          href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap',
-          rel: 'stylesheet',
+  const buildWordPage = async (word, options) => {
+    try {
+      const wordArgs = {
+        url: KANJI_API_URL,
+        endpoint: 'word',
+        args: {
+          ...options,
+          word,
         },
-      })
-      : null
+      };
+
+      const { words = [], kanjiWithin } = await myFetch(wordArgs);
+
+      buildDictionary(words);
+      buildKanjiList(kanjiWithin);
+      await buildExamples(words);
+
+      return Promise.resolve('.answerWord');
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  };
+  // eslint-disable-next-line no-unused-vars
+  const buildDictionary = (words) => (
+    createQaChildren({
+      id: '_answer',
+      ownChildren: [{
+        classNames: ['hidden', 'answerWord'],
+        ownChildren: [{
+          classNames: ['wordDefContainer'],
+          ownChildren: words.map((childWord) => {
+            const { japanese, senses } = objectPropEnforceArray(childWord, ['japanese', 'senses']);
+            const [firstJap, ...rest] = japanese;
+            return {
+              classNames: ['defElemContainer'],
+              ownChildren: [
+                {
+                  method: 'innerHTML',
+                  content: stringWithFurigana(firstJap.word, firstJap.reading),
+                  classNames: ['word'],
+                  attributes: { lang: 'jap' },
+                },
+                ...defElemsData(senses),
+                otherFormsData(rest),
+              ],
+            };
+          }),
+        }],
+      }],
+    })
   );
+  const parseDefStrings = (sense) => {
+    const lower = (arr) => arr.map((e) => (e ? e.toLowerCase() : ''));
+    const callbacks = {
+      englishDefinitions: (arr, glue) => arr.join(glue),
+      partsOfSpeech: (arr, glue) => lower(arr).join(glue),
+      tags: lower,
+      info: lower,
+    };
+
+    const keys = Object.keys(callbacks);
+    const enforcedSenses = objectPropEnforceArray(sense, keys);
+
+    const updatedData = keys.reduce((acc, key) => ({
+      ...acc,
+      [key]: callbacks[key](enforcedSenses[key], ', '),
+    }), {});
+
+    return updatedData;
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  const defElemsData = (senses) => (
+    senses.map((sense, i) => {
+      const {
+        englishDefinitions,
+        partsOfSpeech,
+        tags,
+        info,
+      } = parseDefStrings(sense);
+
+      return {
+        classNames: ['defElems', 'examplable'],
+        ownChildren: [{
+          method: 'innerText',
+          content: partsOfSpeech,
+          classNames: ['defPart'],
+        }, {
+          elem: 'span',
+          ownChildren: [{
+            elem: 'span',
+            content: `${i + 1}. `,
+          }, {
+            elem: 'span',
+            content: englishDefinitions,
+            classNames: ['def'],
+          },
+          ...tags.map((str) => ({
+            content: str,
+            classNames: ['tags'],
+          })),
+          ...info.map((str) => ({
+            content: str,
+            classNames: ['tags'],
+          }))],
+        }],
+      };
+    }));
+  // eslint-disable-next-line no-unused-vars
+  const otherFormsData = (words) => ({
+    classNames: ['defElems'],
+    ownChildren: [{
+      skip: isEmpty(words),
+      method: 'innerText',
+      content: 'other forms',
+      classNames: ['defPart', 'otherForms'],
+    }, ...words.map(({ word, reading }) => ({
+      content: word ? `${word}【${reading}】` : reading,
+    })),
+    ],
+  });
+  // eslint-disable-next-line no-unused-vars
+  const buildKanjiList = (kanjiWithin) => {
+    if (!isEmpty(kanjiWithin)) {
+      const kanjiListArgs = {
+        url: KANJI_API_URL,
+        endpoint: 'kanjiList',
+        args: { kanjiArray: kanjiWithin },
+      };
+      myFetch(kanjiListArgs)
+        .then((kanjiData) => elemGenerator(document.querySelector('.answerWord'))({
+          elem: 'div',
+          classNames: ['kanjiInfoContainer'],
+          ownChildren: kanjiListData(kanjiData),
+        }));
+    }
+  };
+  // eslint-disable-next-line no-unused-vars
+  const kanjiListData = (kanjiData) => (
+    kanjiData.map((data) => {
+      if (isEmpty(data.kanji) || isEmpty(data.kanji.kanji)) {
+        return null;
+      }
+
+      const { kanji: { kanji } } = data;
+
+      const {
+        character,
+        kunyomi: { hiragana } = {},
+        onyomi: { katakana } = {},
+        meaning,
+        shortMeaning,
+        jlpt,
+        strokes = {},
+      } = kanji;
+
+      const kanjiOwnProps = {
+        classNames: ['answerKanji'],
+        callback: () => {
+          document.querySelector('#modal').classList.remove('hidden');
+        },
+      };
+
+      return {
+        elem: 'div',
+        classNames: ['singleKanjiContainer'],
+        ownChildren: [{
+          elem: 'div',
+          method: 'innerText',
+          content: character,
+          classNames: ['kanjiSymbolContainer'],
+          eventListener: {
+            type: 'click',
+            callback: () => {
+              createModalChildren(buildKanjiData(data, kanjiOwnProps));
+            },
+          },
+          ownChildren: [{
+            elem: 'div',
+            method: 'innerText',
+            content: `strokes: ${strokes.count}`,
+            classNames: ['strokes', 'singleKanjiOverviewText'],
+          }],
+        }, {
+          elem: 'div',
+          classNames: ['singleKanjiInfoContainer'],
+          ownChildren: filterEmpty([{
+            classNames: ['flexer'],
+            ownChildren: filterEmpty([{
+              method: 'innerText',
+              content: shortMeaning || meaning,
+              classNames: ['singleKanjiOverviewText', 'translation'],
+            }, {
+              skip: !hiragana,
+              content: `Kun: ${hiragana}`,
+              classNames: ['singleKanjiOverviewText', 'kunyomi'],
+            }, {
+              skip: !katakana,
+              content: `On: ${katakana}`,
+              classNames: ['singleKanjiOverviewText', 'onyomi'],
+            },
+            ]),
+          }, {
+            skip: !jlpt,
+            content: `JLPT N${jlpt}`,
+            classNames: ['singleKanjiOverviewText', 'jlpt'],
+          },
+          ]),
+        }],
+      };
+    })
+  );
+  // eslint-disable-next-line no-unused-vars
+  const buildExamples = async (words) => {
+    try {
+      const examples = await myFetch({
+        url: `${KANJI_API_URL}`,
+        endpoint: 'examples',
+        args: {
+          list: buildLists(words),
+          from: 0,
+          to: 1,
+          maxRetry: 5,
+        },
+      });
+
+      const defs = document.querySelectorAll('.examplable');
+
+      examples.forEach((example = []) => example.forEach((e) => (
+        elemGenerator(defs[e.pos])({
+          classNames: ['exampleSentences'],
+          ownChildren: [{
+            elem: 'span',
+            classNames: ['jpEx'],
+            method: 'innerHTML',
+            content: buildJapaneseExamplesHTML(e.jp),
+          }, {
+            elem: 'span',
+            classNames: ['enEx'],
+            content: e.en,
+          }],
+        })
+      )));
+      return Promise.resolve();
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  };
+  const extractor = {
+    furigana: { reg: /\(([^)]+)\)/ },
+    realUse: { reg: /\{([^)]+)\}/ },
+    str: {
+      reg: /\[[0-9]+\]|\|[0-9]+|~/g,
+      keepReplaced: true,
+    },
+  };
+
+  const jpParsed = (str) => (
+    str.split(' ').map((d) => (
+      Object.keys(extractor).reduce((acc, key) => {
+        const { reg, keepReplaced } = extractor[key];
+        const matched = d.match(reg);
+        if (!matched) return acc;
+
+        const replaced = acc.str.replace(matched[0], '');
+        return {
+          str: replaced,
+          obj: { ...acc.obj, [key]: keepReplaced ? replaced : matched[1] },
+        };
+      }, { str: d, obj: {} })
+    )));
+
+  // eslint-disable-next-line no-unused-vars
+  const buildJapaneseExamplesHTML = (jp) => (
+    jpParsed(jp).reduce((acc, { str, obj }) => (
+      `${acc} ${isEmpty(obj)
+        ? str
+        : obj.realUse || stringWithFurigana(obj.str || str, obj.furigana)
+      }`
+    ), ''));
+  let pos = 0;
+
+  // eslint-disable-next-line no-unused-vars
+  const buildLists = (words) => (
+    JSON.stringify(
+      words.reduce((mAcc, { japanese, senses }) => [
+        ...mAcc,
+        ...senses.map((sense) => {
+          const exInfo = {
+            jpList: japaneseDataParser(senses, japanese),
+            enList: englishDataParser(sense),
+            pos,
+          };
+          pos += 1;
+
+          return exInfo;
+        }),
+      ], []),
+    )
+  );
+  const parenthesize = (str) => (str ? `(${str})` : '');
+
+  // eslint-disable-next-line no-unused-vars
+  const englishDataParser = ({ englishDefinitions }) => (
+    englishDefinitions.map((str) => {
+      const matched = get(str.match(/\((.*)\)/), '1', '')
+        .replace(/e\.g\./)
+        .split(',')
+        .filter((m) => (
+          !isEmpty(m)
+        && !m.includes('applies to nouns noted in this dictionary with the part of speech "vs"')
+        && !m.includes('etc')
+        && !m.match(/(after|before).*(pre|su)fixed.*/)
+        ))
+        .join('|');
+
+      const aToZ = get(str.match(/[A-Z]\s(.*)\s[A-Z]/), '1', '').trim();
+
+      return filterEmpty([
+        str.replace(/(\(.*\)|([A-Z]\s.*\s[A-Z]))/, ''),
+        parenthesize(matched),
+        parenthesize(aToZ),
+      ]).join('|');
+    }));
+  const getTags = ((senses) => (
+    senses.map((sense) => {
+      const { tags, info } = objectPropEnforceArray(sense, ['tags', 'info']);
+
+      const updatedTags = tags.filter((t) => (
+        t !== 'Usually written using kana alone'
+      && t !== 'Colloquialism'
+      && t !== 'Slang'
+      ));
+      return [...updatedTags, ...info];
+    })));
+
+  // eslint-disable-next-line no-unused-vars
+  const japaneseDataParser = (senses, japanese) => {
+    const allTags = getTags(senses);
+    const jpList = [
+      ...new Set(
+        filterEmpty(
+          japanese.reduce((acc, { word: jword, reading }) => (
+            [...acc, jword || reading]
+          ), []),
+        ),
+      )];
+
+    return jpList.map((jp, index) => {
+      const currTags = (
+        allTags[index] || [])
+        .filter((e) => hasJapaneseCharacters(e))
+        .map((e) => {
+          const newStr = e.replace(/as|〜|\s|([A-Z](.*)[A-Z])/g, '').replace(',', '|');
+          return newStr ? `(${newStr})` : '';
+        })
+        .filter((e) => e)
+        .join('|');
+
+      return filterEmpty([jp, currTags]).join('|');
+    });
+  };
   const buildKanjiData = (word, props = {}) => {
     const { kanji: { kanji, examples = [] } } = word;
     const {
@@ -489,214 +871,6 @@
         ],
       }],
     }],
-  });
-  // eslint-disable-next-line no-unused-vars
-  const buildWordPage = async (word, options) => {
-    try {
-      const wordArgs = {
-        url: KANJI_API_URL,
-        endpoint: 'word',
-        args: {
-          ...options,
-          word,
-        },
-      };
-
-      const { words, kanjiWithin } = await myFetch(wordArgs);
-
-      createQaChildren({
-        id: '_answer',
-        ownChildren: [{
-          classNames: ['hidden', 'answerWord'],
-          ownChildren: [{
-            classNames: ['wordDefContainer'],
-            ownChildren: words.map((childWord) => {
-              const { japanese, senses } = objectPropEnforceArray(childWord, ['japanese', 'senses']);
-              const [firstJap, ...rest] = japanese;
-              return {
-                classNames: ['defElemContainer'],
-                ownChildren: [
-                  {
-                    method: 'innerHTML',
-                    content: stringWithFurigana(firstJap.word, firstJap.reading),
-                    classNames: ['word'],
-                    attributes: { lang: 'jap' },
-                  },
-                  ...defElemsData(senses),
-                  otherFormsData(rest),
-
-                ],
-              };
-            }),
-          }],
-        }],
-      });
-
-      if (!isEmpty(kanjiWithin)) {
-        const kanjiListArgs = {
-          url: KANJI_API_URL,
-          endpoint: 'kanjiList',
-          args: { kanjiArray: kanjiWithin },
-        };
-        myFetch(kanjiListArgs)
-          .then((kanjiData) => elemGenerator(document.querySelector('.answerWord'))({
-            elem: 'div',
-            classNames: ['kanjiInfoContainer'],
-            ownChildren: kanjiListData(kanjiData),
-          }));
-      }
-
-      return Promise.resolve('.answerWord');
-    } catch (err) {
-      return Promise.reject(err);
-    }
-  };
-  const parseDefStrings = (sense) => {
-    const lower = (arr) => arr.map((e) => (e ? e.toLowerCase() : ''));
-    const callbacks = {
-      englishDefinitions: (arr, glue) => arr.join(glue),
-      partsOfSpeech: (arr, glue) => lower(arr).join(glue),
-      tags: lower,
-      info: lower,
-    };
-
-    const keys = Object.keys(callbacks);
-    const enforcedSenses = objectPropEnforceArray(sense, keys);
-
-    const updatedData = keys.reduce((acc, key) => ({
-      ...acc,
-      [key]: callbacks[key](enforcedSenses[key], ', '),
-    }), {});
-
-    return updatedData;
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const defElemsData = (senses) => (
-    senses.map((sense, i) => {
-      const {
-        englishDefinitions,
-        partsOfSpeech,
-        tags,
-        info,
-      } = parseDefStrings(sense);
-
-      return {
-        classNames: ['defElems'],
-        ownChildren: [{
-          method: 'innerText',
-          content: partsOfSpeech,
-          classNames: ['defPart'],
-        }, {
-          elem: 'span',
-          ownChildren: [{
-            elem: 'span',
-            content: `${i + 1}. `,
-          }, {
-            elem: 'span',
-            content: englishDefinitions,
-            classNames: ['def'],
-          },
-          ...tags.map((str) => ({
-            content: str,
-            classNames: ['tags'],
-          })), {
-            elem: 'br',
-          },
-          ...info.map((str) => ({
-            content: str,
-            classNames: ['tags'],
-          }))],
-        }],
-      };
-    }));
-  // eslint-disable-next-line no-unused-vars
-  const kanjiListData = (kanjiData) => (
-    kanjiData.map((data) => {
-      if (isEmpty(data.kanji) || isEmpty(data.kanji.kanji)) {
-        return null;
-      }
-
-      const { kanji: { kanji } } = data;
-
-      const {
-        character,
-        kunyomi: { hiragana } = {},
-        onyomi: { katakana } = {},
-        meaning,
-        shortMeaning,
-        jlpt,
-        strokes = {},
-      } = kanji;
-
-      const kanjiOwnProps = {
-        classNames: ['answerKanji'],
-        callback: () => {
-          document.querySelector('#modal').classList.remove('hidden');
-        },
-      };
-
-      return {
-        elem: 'div',
-        classNames: ['singleKanjiContainer'],
-        ownChildren: [{
-          elem: 'div',
-          method: 'innerText',
-          content: character,
-          classNames: ['kanjiSymbolContainer'],
-          eventListener: {
-            type: 'click',
-            callback: () => {
-              createModalChildren(buildKanjiData(data, kanjiOwnProps));
-            },
-          },
-          ownChildren: [{
-            elem: 'div',
-            method: 'innerText',
-            content: `strokes: ${strokes.count}`,
-            classNames: ['strokes', 'singleKanjiOverviewText'],
-          }],
-        }, {
-          elem: 'div',
-          classNames: ['singleKanjiInfoContainer'],
-          ownChildren: filterEmpty([{
-            classNames: ['flexer'],
-            ownChildren: filterEmpty([{
-              method: 'innerText',
-              content: shortMeaning || meaning,
-              classNames: ['singleKanjiOverviewText', 'translation'],
-            }, {
-              skip: !hiragana,
-              content: `Kun: ${hiragana}`,
-              classNames: ['singleKanjiOverviewText', 'kunyomi'],
-            }, {
-              skip: !katakana,
-              content: `On: ${katakana}`,
-              classNames: ['singleKanjiOverviewText', 'onyomi'],
-            },
-            ]),
-          }, {
-            skip: !jlpt,
-            content: `JLPT N${jlpt}`,
-            classNames: ['singleKanjiOverviewText', 'jlpt'],
-          },
-          ]),
-        }],
-      };
-    })
-  );
-  // eslint-disable-next-line no-unused-vars
-  const otherFormsData = (words) => ({
-    classNames: ['defElems'],
-    ownChildren: [{
-      skip: isEmpty(words),
-      method: 'innerText',
-      content: 'other forms',
-      classNames: ['defPart', 'otherForms'],
-    }, ...words.map(({ word, reading }) => ({
-      content: word ? `${word}【${reading}】` : reading,
-    })),
-    ],
   });
   const init = () => {
     if (document.querySelector('#loader')) return Promise.resolve();

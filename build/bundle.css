@@ -101,7 +101,8 @@ body {
 
 #trad * {
   line-height: 40px;
-}.answerKanji {
+}
+.answerKanji {
   display: grid;
 
   grid-template-areas: 
@@ -443,6 +444,7 @@ body {
   font-size: 0.75em;
   font-style: italic;
   margin-left: 30px;
+  margin-bottom: 30px;
 }
 
 .word {
@@ -520,4 +522,15 @@ body {
   grid-row: 1;
   display: flex;
   justify-content: flex-end;
+}
+
+.exampleSentences {
+  display: flex;
+  flex-direction: column;
+  margin-left: 30px;
+  font-size: 0.75em;
+  line-height: 1.3em;
+  font-style: italic;
+  margin-bottom: 30px;
+
 }

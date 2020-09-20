@@ -10,49 +10,11 @@ const buildWordPage = async (word, options) => {
       },
     };
 
-    const { words, kanjiWithin } = await myFetch(wordArgs);
+    const { words = [], kanjiWithin } = await myFetch(wordArgs);
 
-    createQaChildren({
-      id: '_answer',
-      ownChildren: [{
-        classNames: ['hidden', 'answerWord'],
-        ownChildren: [{
-          classNames: ['wordDefContainer'],
-          ownChildren: words.map((childWord) => {
-            const { japanese, senses } = objectPropEnforceArray(childWord, ['japanese', 'senses']);
-            const [firstJap, ...rest] = japanese;
-            return {
-              classNames: ['defElemContainer'],
-              ownChildren: [
-                {
-                  method: 'innerHTML',
-                  content: stringWithFurigana(firstJap.word, firstJap.reading),
-                  classNames: ['word'],
-                  attributes: { lang: 'jap' },
-                },
-                ...defElemsData(senses),
-                otherFormsData(rest),
-
-              ],
-            };
-          }),
-        }],
-      }],
-    });
-
-    if (!isEmpty(kanjiWithin)) {
-      const kanjiListArgs = {
-        url: KANJI_API_URL,
-        endpoint: 'kanjiList',
-        args: { kanjiArray: kanjiWithin },
-      };
-      myFetch(kanjiListArgs)
-        .then((kanjiData) => elemGenerator(document.querySelector('.answerWord'))({
-          elem: 'div',
-          classNames: ['kanjiInfoContainer'],
-          ownChildren: kanjiListData(kanjiData),
-        }));
-    }
+    buildDictionary(words);
+    buildKanjiList(kanjiWithin);
+    await buildExamples(words);
 
     return Promise.resolve('.answerWord');
   } catch (err) {

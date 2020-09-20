@@ -6,16 +6,17 @@ const {
 } = require('./buildUtils');
 
 const createCSSFile = (relativePath) => (paths) => {
-  merger(paths, `${relativePath}/build/bundle.css`);
+  merger(paths, '/build/bundle.css', relativePath);
 };
 
 const createEncapsulatedScript = (relativePath) => (paths, type) => {
-  const dest = `${relativePath}/build/anki.fetchJapanese.${type}.bundle.js`;
+  const dest = `/build/anki.fetchJapanese.${type}.bundle.js`;
+  const destWithPath = `${relativePath}${dest}`;
 
-  addStringToFile('(() => {\n', dest);
-  merger(paths, dest);
-  addStringToFile('})()', dest);
-  eslint(dest);
+  addStringToFile('(() => {\n', destWithPath);
+  merger(paths, dest, relativePath);
+  addStringToFile('})()', destWithPath);
+  eslint(`${relativePath}${dest}`);
 };
 
 const nth = (size, callback) => [...Array(size)].forEach((_, index) => callback(index));

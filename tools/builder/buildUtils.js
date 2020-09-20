@@ -10,21 +10,23 @@ const mergeFilesBash = (origin, dest) => exec(`cat ${origin} >> ${dest}`);
 const addStringToFile = (str, dest) => exec(`printf "${str}\n" >> ${dest}`);
 const eslint = (src) => exec(`npx eslint --fix ${src}`);
 
-const mergeFiles = (origin, dest) => {
+const mergeFiles = (path, dest, relativePath = '') => {
+  const origin = `${relativePath}${path}`;
+  const relativeDest = `${relativePath}${dest}`;
   const pathIsDir = isDir(origin);
 
   if (pathIsDir) {
     const contentPaths = getFolderContent(origin);
-    contentPaths.forEach((path) => mergeFiles(`${origin}/${path}`, dest));
+    contentPaths.forEach((cpath) => mergeFiles(`${origin}/${cpath}`, relativeDest));
     return;
   }
 
-  touch(dest);
-  mergeFilesBash(origin, dest);
+  touch(relativeDest);
+  mergeFilesBash(origin, relativeDest);
 };
 
-const merger = (paths, dest) => (
-  paths.forEach((path) => mergeFiles(path, dest))
+const merger = (paths, dest, relativePath) => (
+  paths.forEach((path) => mergeFiles(path, dest, relativePath))
 );
 
 module.exports = {

@@ -22,6 +22,7 @@ const globalNames = [
   'getKanji',
   'hasKanji',
   'stringWithFurigana',
+  'hasJapaneseCharacters',
   /* utils fetch */
   'myFetch',
   /* utils formats */
@@ -47,9 +48,17 @@ const globalNames = [
   'examplesData',
   /* => word page build */
   'buildWordPage',
+  'buildDictionary',
   'defElemsData',
   'otherFormsData',
+  'buildKanjiList',
   'kanjiListData',
+  'buildLists',
+  'japaneseDataParser',
+  'englishDataParser',
+  'japaneseDataParser',
+  'buildExamples',
+  'buildJapaneseExamplesHTML',
   /* => Common generators */
   'buildHeaders',
   'buildCommonPageElements',

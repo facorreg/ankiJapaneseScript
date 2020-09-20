@@ -84,20 +84,24 @@
     const {
       url,
       endpoint = '',
-      headers = {},
+      requestInit = {},
       args: queryArgs = {},
     } = args;
 
+    const headers = new Headers();
+    const { headerData = {} } = requestInit;
+    Object.keys(headerData).forEach((prop) => headers.append(prop, headerData[prop]));
     const argString = Object
       .keys(queryArgs)
-      .map((key, i) => `${!i ? '?' : ''}${key}=${
-        !isArray(queryArgs[key])
-          ? queryArgs[key]
-          : queryArgs[key].join(`&${key}=`)}`)
+      .map((key, i) => `${!i ? '?' : ''}${key}=${!isArray(queryArgs[key])
+        ? queryArgs[key]
+        : queryArgs[key].join(`&${key}=`)}`)
       .join('&');
 
+    const requestInfo = encodeURI(`${url}${endpoint}${argString}`);
+
     try {
-      const response = await fetch(encodeURI(`${url}${endpoint}${argString}`, headers));
+      const response = await fetch(requestInfo, { ...requestInit, headers });
       const json = await response.json();
       return json;
     } catch (err) {
@@ -116,22 +120,6 @@
   };
 
   const getCurrentWord = () => document.querySelector('#pageWord').textContent;
-
-  const get = (object, path, defaultVal = '') => {
-    const isLastPath = !path.includes('.');
-
-    if (isLastPath) {
-      return isObject(object) ? object[path] || defaultVal : defaultVal;
-    }
-
-    const nextLayer = path.slice(0, path.indexOf('.'));
-    const { [nextLayer]: nextObject } = object;
-    const remainingLayers = path.slice(path.indexOf('.') + 1);
-
-    return typeof nextObject !== 'undefined'
-      ? get(nextObject, remainingLayers, defaultVal)
-      : defaultVal;
-  };
 
   const uniq = (array) => array.filter((value, index) => array.indexOf(value) === index);
 
@@ -163,6 +151,37 @@
   const findValidFormat = (sources, formats) => (
     Object.keys(sources).find((key) => formats.includes(key))
   );
+
+  const isNaN = (valeur) => Number.isNaN(Number(valeur));
+
+  const get = (object, path, defaultVal = '') => {
+    const isLastPath = !path.includes('.');
+    if (isEmpty(object)) return defaultVal;
+    if (isLastPath) {
+      return isObject(object) ? object[path] || defaultVal : defaultVal;
+    }
+
+    const nextLayer = path.slice(0, path.indexOf('.'));
+
+    const handleArray = (arr, index) => (isNaN(index) ? null : arr[index]);
+
+    const handleObj = (obj) => {
+      const { [nextLayer]: nextObject } = obj;
+      return nextObject;
+    };
+
+    const nextObject = isArray(object)
+      ? handleArray(object, Number(nextLayer))
+      : handleObj(object);
+
+    // console.log(isArray(object), nextObject, nextLayer);
+
+    const remainingLayers = path.slice(path.indexOf('.') + 1);
+
+    return !isEmpty(nextObject)
+      ? get(nextObject, remainingLayers, defaultVal)
+      : defaultVal;
+  };
 
   const objectPropEnforceArray = (object, keys) => ({
     ...object,
@@ -218,7 +237,7 @@
   const getKanji = (string, greed = false) => string.match(greed ? allkanjiRegex : kanjiRegex);
   const hasKanji = (string) => Boolean(getKanji(string));
   const isKanji = (string) => hasKanji(string) && string.length === 1;
-
+  const hasJapaneseCharacters = (str) => Boolean(str.match(/[\u3000-\u303F]|[\u3040-\u309F]|[\u30A0-\u30FF]|[\uFF00-\uFFEF]|[\u4E00-\u9FAF]|[\u2605-\u2606]|[\u2190-\u2195]|\u203B/g));
   const escapeRegExp = (string) => (
     string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
   );
@@ -241,6 +260,19 @@
     elem.classList.remove('hidden');
     return Promise[err ? 'resolve' : 'reject'](err || '');
   };
+  // eslint-disable-next-line no-unused-vars
+  const buildHeaders = () => (
+    !document.querySelector('#Roboto')
+      ? elemGenerator(document.head)({
+        elem: 'link',
+        id: 'Roboto',
+        attributes: {
+          href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap',
+          rel: 'stylesheet',
+        },
+      })
+      : null
+  );
   // eslint-disable-next-line no-unused-vars
   const swapContent = (array, elem) => {
     let index = 0;
@@ -317,19 +349,6 @@
       return promiseRemoveHidden(wordElem, err);
     }
   };
-  // eslint-disable-next-line no-unused-vars
-  const buildHeaders = () => (
-    !document.querySelector('#Roboto')
-      ? elemGenerator(document.head)({
-        elem: 'link',
-        id: 'Roboto',
-        attributes: {
-          href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap',
-          rel: 'stylesheet',
-        },
-      })
-      : null
-  );
   const init = async () => {
     ['#modal', '#loader', '#error']
       .forEach((id) => {

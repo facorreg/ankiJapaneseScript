@@ -29,7 +29,7 @@ const defElemsData = (senses) => (
     } = parseDefStrings(sense);
 
     return {
-      classNames: ['defElems'],
+      classNames: ['defElems', 'examplable'],
       ownChildren: [{
         method: 'innerText',
         content: partsOfSpeech,
@@ -47,9 +47,7 @@ const defElemsData = (senses) => (
         ...tags.map((str) => ({
           content: str,
           classNames: ['tags'],
-        })), {
-          elem: 'br',
-        },
+        })),
         ...info.map((str) => ({
           content: str,
           classNames: ['tags'],

@@ -9,31 +9,34 @@ const {
 
 const commonJsPaths = [
   /* utils */
-  `${relativePath}src/options.js`,
-  `${relativePath}src/env.js`,
-  `${relativePath}src/utils`,
+  'src/options.js',
+  'src/env.js',
+  'src/utils',
+  'src/commonScripts',
 ];
 
 const jsPaths = {
   front: [
     /* front cards */
-    `${relativePath}src/frontCard/swapContent.js`,
-    `${relativePath}src/frontCard/tradCard`,
-    `${relativePath}src/frontCard/wordCard`,
-    `${relativePath}src/backCard/page/buildHeaders.js`,
-    `${relativePath}src/frontCard/init.js`,
+    'src/frontCard/swapContent.js',
+    'src/frontCard/tradCard',
+    'src/frontCard/wordCard',
+    'src/frontCard/init.js',
   ],
   back: [
     /* back cards */
-    `${relativePath}src/backCard/page`,
-    `${relativePath}src/backCard/kanjiPage`,
-    `${relativePath}src/backCard/wordPage`,
-    `${relativePath}src/backCard/init.js`,
+    'src/backCard/commonBack',
+    'src/backCard/wordPage/buildWordPage.js',
+    'src/backCard/wordPage/buildDictionary',
+    'src/backCard/wordPage/buildKanji',
+    'src/backCard/wordPage/buildExamples',
+    'src/backCard/kanjiPage',
+    'src/backCard/init.js',
   ],
 };
 
-const stylePaths = [`${relativePath}style`];
-const buildPath = `${relativePath}build`;
+const stylePaths = ['style'];
+const buildPath = 'build';
 
 const buildBundles = async () => {
   await rmDir(buildPath);
